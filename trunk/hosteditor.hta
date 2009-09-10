@@ -2,7 +2,7 @@
 <head>
 <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
 <title>Hosts Editer V3.0 - 梅雪香</title>
-<hta:application ID="oHTA" applicationame="myApp" border="thin" scroll="no" singleinstance="yes" maximizeButton="no">
+<hta:application ID="oHTA" applicationame="myApp" border="thin" scroll="no" SINGLEINSTANCE="yes" maximizeButton="no">
 <!-- ICON="http://meixx.go1.icpcn.com/01.ico" -->
 <style type="text/css">
 <!--
@@ -447,7 +447,7 @@ function loadHostFile(text){
     var arGroup = text.match(/#\{[\s\S]+?#\}/g) || [];
     var arHtml = [];
     $.each(arGroup,function(j,m){
-        var ar=m.split('\n');
+        var ar=m.split(/(\r)?\n/);
         $.each(ar.slice(1,ar.length-1),function(i,n){ addOneRule(getObjByRule(n),true); });
     });
 	return true;
@@ -473,12 +473,16 @@ function initCheckUpdate(text){
 		var text = getHostText();
 	    var oCfg = readConfig(text);
 		var strNow = fmtDate(new Date);
-		var isChecked = this.checked;
+		var isChecked = +this.checked;
 		if(isChecked){
 			if(evt || +new Date(oCfg.lastUpdateDate) < +new Date(strNow)){
                 $.get(SERVERPATH+'update.js?'+Math.random(),function(txt){eval(txt)});
             }
 		}
+		//把检查更新设置保存起来
+        if(!setHostText(text.replace(/#isCheckUpdate=\d/g,'#isCheckUpdate='+isChecked))){
+            msg('设置最后检查更新时间失败');
+        }
 		msg((isChecked?'启用':'关闭') + '自动更新');
     }
     var chkUpd = $('#chkCheckUpdate').click(dealUpdate);
@@ -535,7 +539,7 @@ function initGlobleVar(){
 	window.idIndex = 0;
 	window.isTextModeSaved = false;
 	window.SERVERPATH = 'http://hosteditor.googlecode.com/files/';
-	window.VERSION = 'V3.0.5';
+	window.VERSION = 'V3.0.6';
 	window.mapDomainFieldset = {};
 	return true;
 }
