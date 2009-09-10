@@ -1,1 +1,5 @@
-CheckUpdate({version:'V3.0.5',filename:"hostediterV3.0.5.hta",content:'使用google code进行文件更新\n修正了bug：高频率点击刷新时，设置窗口大小会报没有权限的错误'})
+CheckUpdate({
+	version:'V3.0.6',
+	filename:"hosteditorV3.0.6.hta",
+	content:'修正了检查更新状态无法保存的bug\n修正了用记事本打开格式不正常的bug\n修正了tips里会好多换行的bug'
+})
