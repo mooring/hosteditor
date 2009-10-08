@@ -1,3 +1,11 @@
+HostEditor V3.0.7
+1.添加单实例打开功能，现在只能同时存在一个程序窗口
+
+HostEditor V3.0.6
+1.修正了检查更新状态无法保存的bug
+2.修正了用记事本打开格式不正常的bug
+3.修正了tips里会好多换行的bug
+
 HostEditor V3.0.5
 
 1.使用google code进行文件更新
