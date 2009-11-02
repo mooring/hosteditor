@@ -1,5 +1,5 @@
 CheckUpdate({
-	version:'V3.0.7',
-	filename:"hosteditorV3.0.7.hta",
-	content:'添加单实例打开功能，现在只能同时存在一个程序窗口'
-})
+	version:3.1,
+	filename:"hosteditorV3.1.hta",
+	content:'修正添加不保存的bug，\n修正如果添加的规则已经存在时，选中状态不跟随新添加的bug'
+});
