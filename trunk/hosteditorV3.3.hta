@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-cn" lang="zh-cn">
 <head>
 <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
-<title>Hosts Editer V3.2 - 梅雪香</title>
+<title>HostEditor V3.2 - 梅雪香</title>
 <hta:application id="appMxxHostEditor" applicationname="appMxxHostEditor" singleinstance="yes" border="thin" scroll="no" maximizeButton="no">
 <style type="text/css">
 <!--
@@ -15,7 +15,7 @@ background-color:buttonface;margin:0px ;height:24px;}
 #divHeader select{width:145px;}
 #divHeader .divCase{float:right;white-space:nowrap;}
 #divHeader .divCase button{border:1px solid gray;font-weight:bold;font-size:16px;width:20px;height:20px;margin:0px 1px 2px 0px;}
-#divHeader .domainfilter{border:1px solid gray;background-color:#efefef;height:15px;font-size:12px;color:gray;padding-top:2px;padding-left:3px;ime-mode:disabled;}
+#divHeader .domainfilter{border:1px solid gray;background-color:#efefef;height:15px;font-size:12px;color:gray;padding-top:1px;padding-left:3px;ime-mode:disabled;}
 #divBody{padding:0 10px; width:780px; height:530px; overflow:auto; }
 #divTextMode{width:800px; height:530px; overflow:hidden;}
 #divTextMode textarea{width:800px;height:530px; overflow:auto; border:0px; background-color: #efefef;}
@@ -29,7 +29,7 @@ background-color:buttonface;margin:0px ;height:24px;}
 
 .domaingroups div{width:144px;float:left;overflow:hidden;height:26px;margin:2px;}
 .domaingroups div label{padding:1px 2px; zoom:1;}
-.domaingroups div a{margin:1px 1px; zoom:1;}
+.domaingroups div a{width:12px; margin:0px 1px; text-align:center; zoom:1;}
 .fieldsetover{}
 .fieldsetover legend{font-weight:bold;color:#BA0113;}
 .fieldsetover legend .act{display:inline}
@@ -48,18 +48,22 @@ background-color:buttonface;margin:0px ;height:24px;}
 .divFloatAdd .text{padding:1 3px;}
 .layout{position:absolute;top:0px;left:0px;background-color: #000000;}
 .effective{font-weight:bold;}
-.learning{zoom:1;width:360px;margin:0px 15px;overflow:hidden;white-space  :nowrap;}
+.learning{zoom:1;width:560px;margin:0px 15px;overflow:hidden;white-space  :nowrap;}
 .learning span{zoom:1;width:400px;}
 .clshelp{position:absolute;top:0px;left:0px; height:100%;background-color:#FFFFCC;margin:0px; padding:0px 10px;display:none;overflow:auto;}
 .hidden{display:none;}
 .center{text-align:center;}
 .title{font-size:16px;font-weight:bold;word-spacing:5px;letter-spacing:2px;}
 .blue{color:blue;}
+.casecontainer{width:400px;height:300px;border:2px solid;border-color:buttonhighlight buttonshadow buttonshadow buttonhighlight;;position:absolute;overflow:hidden;background-color:buttonface;padding:15px 2px;}
+.casecontainer .caselist{overflow:auto;}
+.casecontainer .caselist li{width:80px; height:80px; margin:2px; float:left; border:1px solid #804040 }
+.casecontainer .caselist li textarea{width:76px; height:76px; border:0px;overflow:auto;}
+.casecontainer .footbar{position:absolute; text-align:right; width:400px; height:40px;bottom:0px;}
 -->
 </style>
 <script type="text/javascript">
 <!--
-var ar = [+new Date];
 (function(A,w){function ma(){if(!c.isReady){try{s.documentElement.doScroll("left")}catch(a){setTimeout(ma,1);return}c.ready()}}function Qa(a,b){b.src?c.ajax({url:b.src,async:false,dataType:"script"}):c.globalEval(b.text||b.textContent||b.innerHTML||"");b.parentNode&&b.parentNode.removeChild(b)}function X(a,b,d,f,e,j){var i=a.length;if(typeof b==="object"){for(var o in b)X(a,o,b[o],f,e,d);return a}if(d!==w){f=!j&&f&&c.isFunction(d);for(o=0;o<i;o++)e(a[o],b,f?d.call(a[o],o,e(a[o],b)):d,j);return a}return i?
 e(a[0],b):w}function J(){return(new Date).getTime()}function Y(){return false}function Z(){return true}function na(a,b,d){d[0].type=a;return c.event.handle.apply(b,d)}function oa(a){var b,d=[],f=[],e=arguments,j,i,o,k,n,r;i=c.data(this,"events");if(!(a.liveFired===this||!i||!i.live||a.button&&a.type==="click")){a.liveFired=this;var u=i.live.slice(0);for(k=0;k<u.length;k++){i=u[k];i.origType.replace(O,"")===a.type?f.push(i.selector):u.splice(k--,1)}j=c(a.target).closest(f,a.currentTarget);n=0;for(r=
 j.length;n<r;n++)for(k=0;k<u.length;k++){i=u[k];if(j[n].selector===i.selector){o=j[n].elem;f=null;if(i.preType==="mouseenter"||i.preType==="mouseleave")f=c(a.relatedTarget).closest(i.selector)[0];if(!f||f!==o)d.push({elem:o,handleObj:i})}}n=0;for(r=d.length;n<r;n++){j=d[n];a.currentTarget=j.elem;a.data=j.handleObj.data;a.handleObj=j.handleObj;if(j.handleObj.origHandler.apply(j.elem,e)===false){b=false;break}}return b}}function pa(a,b){return"live."+(a&&a!=="*"?a+".":"")+b.replace(/\./g,"`").replace(/ /g,
@@ -343,7 +347,7 @@ function saveDomToHost(message, isSilence){
 	var text = getHostText().trim().split('\n').slice(0, 3).join('');
 	var oCfg = readConfig(text);
 	var HText = '#WELLFORMATED\r\n#isCheckUpdate=' + oCfg.isCheckUpdate + '&lastUpdateDate=' + oCfg.lastUpdateDate +
-	'\r\n#NOTICE:本文件内容为<Mxx Host Editer>自动生成,请不要手动修改!否则可能导致程序无法正常运行\r\n\r\n';
+	'\r\n#NOTICE:本文件内容为<HostEditor>自动生成,请不要手动修改!否则可能导致程序无法正常运行\r\n\r\n';
 	message = (message || '保存') + (setHostText(HText + getHostRulesFromDom()) ? '成功' : '失败')
 	isSilence || msg(message);
 }
@@ -405,6 +409,7 @@ function initwindow(){
 }
 
 function initCase(){
+	return true;
 	var text = getCaseText().trim() || 'LoadCase({})';
 	var dlt = $('#dltCase');
 	var casedata = null;
@@ -517,19 +522,25 @@ function initLearning(){
 	return true;
 }
 
-function filterDomain(){
-	var r = new RegExp($(this).val().toLowerCase(), 'i');
+function filterDomain(evt){
+	evt && evt.keyCode == 27 && (this.value='');
+	var r = new RegExp(this.value.toLowerCase(), 'i');
 	$('#divBody fieldset').each(function(i, n){
 		$(this)[r.test($('legend span', this).html()) ? 'fadeIn' : 'fadeOut']();
 	});
 }
 
 function initDomainFilter(){
-	return $('#txtDomainFilter').bind('drop', filterDomain).bind('paste', filterDomain).keyup(filterDomain).focus(function(){
-		if (this.value == '按域名过滤') t.value = '';
-	}).blur(function(){
-		if (this.value.empty()) t.value = '按域名过滤';
-	});
+	return $('#txtDomainFilter')
+		.bind('drop', filterDomain)
+		.bind('paste', filterDomain)
+		.bind('dblclick', function(evt){this.value = ''; filterDomain.call(this,evt); })
+		.keyup(filterDomain)
+		.focus(function(){
+			if (this.value == '按域名过滤') this.value = '';
+		}).blur(function(){
+			if (this.value.empty()) this.value = '按域名过滤';
+		});
 }
 
 function initTopBanner(){
@@ -560,7 +571,7 @@ function formatHostFile(){
 		}
 	});
 	var oCfg = readConfig(text);
-	var arHText = ['#WELLFORMATED\r\n' + '#isCheckUpdate=' + oCfg.isCheckUpdate + '&lastUpdateDate=' + oCfg.lastUpdateDate + '\r\n' + '#NOTICE:本文件内容为<Mxx Host Editer>自动生成,请不要手动修改!否则可能导致程序无法正常运行\r\n\r\n'];
+	var arHText = ['#WELLFORMATED\r\n' + '#isCheckUpdate=' + oCfg.isCheckUpdate + '&lastUpdateDate=' + oCfg.lastUpdateDate + '\r\n' + '#NOTICE:本文件内容为<HostEditor>自动生成,请不要手动修改!否则可能导致程序无法正常运行\r\n\r\n'];
 	$.each(oHost, function(k, v){
 		v.unique(function(n){
 			return n.ip;
@@ -594,10 +605,10 @@ function findGroup(dm){
 
 function createNewGroup(dm){
 	return $('<fieldset class="domaingroups" domain="' + dm + '"><legend><span>' + dm + '</span>&nbsp;<span class="act">' +
-	'<a href="#" title="移动到底部" onclick="groupMoveTo(this,\'bottom\');return false;">bottom</a>' +
-	'<a href="#" title="和下一个交换位置" onclick="groupMoveTo(this,\'down\');return false;">down</a>' +
-	'<a href="#" title="和上一个交换位置" onclick="groupMoveTo(this,\'up\');return false;">up</a>' +
-	'<a href="#" title="移动到顶部" onclick="groupMoveTo(this,\'top\');return false;">top</a>' +
+	'<a href="#" title="移动到底部" onclick="groupMoveTo(this,\'bottom\');return false;">Bottom</a>' +
+	'<a href="#" title="和下一个交换位置" onclick="groupMoveTo(this,\'down\');return false;">Down</a>' +
+	'<a href="#" title="和上一个交换位置" onclick="groupMoveTo(this,\'up\');return false;">Up</a>' +
+	'<a href="#" title="移动到顶部" onclick="groupMoveTo(this,\'top\');return false;">Top</a>' +
 	'</span></legend></fieldset>').appendTo('#divBody').hover(function(){
 		$(this).addClass('fieldsetover');
 	}, function(){
@@ -606,23 +617,28 @@ function createNewGroup(dm){
 }
 
 function groupMoveTo(lnk, key){
-	groupMoveTo.map[key].call(lnk);
-	saveDomToHost('',true);
+	var fs = $(lnk).parents('fieldset');
+	if ((key == 'up' || key == 'top') && !fs.prev('fieldset').size()) {
+		return msg('该组已经在第一位，不能再向上移动了');
+	}
+	if ((key == 'down' || key == 'bottom') && !fs.next('fieldset').size()) {
+		return msg('该组已经在最后 一位，不能再向下移动了');
+	}
+	groupMoveTo.map[key].call(lnk, fs);
+	saveDomToHost('', true);
 }
 groupMoveTo.map = {
-	bottom: function(){
-		$('#divBody').append($(this).parents('fieldset'));
+	bottom: function(fs){
+		$('#divBody').append(fs);
 	},
-	down: function(){
-		var fs = $(this).parents('fieldset');
+	down: function(fs){
 		fs.next().after(fs);
 	},
-	up: function(){
-		var fs = $(this).parents('fieldset');
+	up: function(fs){
 		fs.prev().before(fs);
 	},
-	'top': function(){
-		$('#divBody').prepend($(this).parents('fieldset'));
+	'top': function(fs){
+		$('#divBody').prepend(fs);
 	}
 };
 function addOneRuleToGroup(fs, oRule, isUnique){
@@ -701,6 +717,8 @@ function CheckUpdate(json){
 		if (confirm('检测到新版本：' + ver + '\n' + json.content + '\n是否立刻更新？')) {
 			window.open(SERVERPATH + json.filename, 'hedownload');
 		}
+	}else{
+		msg('您当前使用的已经是最新的版本');
 	}
 	var text = getHostText();
 	if (/lastUpdateDate=(\d{4}\/\d{1,2}\/\d{1,2})/.test(text)) {
@@ -789,18 +807,62 @@ function initGlobleVar(){
 	window.mapDomainFieldset = {};
 	return true;
 }
-
+function LoadCase(json){
+	LoadCase.data = json;
+}
+function saveCaseList(json){
+	var arCode = [];
+	$.each(json,function (key, arRules){
+		arCode.push('"' + key + '":["' + arRules.join('","') + '"]');
+	});
+	var code = 'LoadCase({' + arCode.join(',') + '})';
+	if (!setCaseText(code)) {
+		msg('保存方案失败!请检查配置文件:' + casename + '是否为只读属性');
+		return false;
+	};
+	return true;
+}
 function initBottomBanner(){
-	var fns = [function(){
-		$('#divFooter button').slice(0, 6).toggleClass('hidden');
+	var fns = [
+	function (){
+		$.getScript(casepath,function(){
+			var arHtml = ['<div class="casecontainer"><ul id="ul_case_list" class="caselist">'];
+			$.each(LoadCase.data, function(name,rules){
+				arHtml.push('<li>'+name+'</li>');
+			});
+			arHtml.push('</ul><div class="footbar"><button>确定</button><button>取消</button></div></div>');
+			$(arHtml.join('')).modal(function(){
+				var name = ta.val();
+				if(name.empty() || name.trim() == '请输入方案名称'){
+					alert('请输入方案名称');
+					return ta.focus().select();
+				}
+				if(LoadCase.data[name]){
+					alert('方案名称已经存在，请重新输入');
+					return ta.focus().select();
+				}
+				var chks = $('#divBody :checkbox[checked]'), arRule = [];
+				chks.each(function(i,chk){
+					arRule.push( getRuleFromCheckbox($(chk)) );
+				});
+				LoadCase.data[name] = arRule;
+				saveCaseList(LoadCase.data);
+				ta.parent().append(document.createTextNode(name));
+				ta.remove();
+			});
+			var ta = $('<li><textarea>请输入方案名称</textarea></li>').prependTo('#ul_case_list').find('textarea').focus().select();
+		});
+
+	},
+	function(){
+		$('#divFooter button').slice(1, 7).toggleClass('hidden');
 		$('#divTextMode,#divBody').toggleClass('hidden');
 		$('#taHostText').val(getHostText().trim());
 	}, function(){
 		if (isTextModeSaved) {
-			location.reload();
-			return;
+			return location.reload();
 		}
-		$('#divFooter button').slice(0, 4).toggleClass('hidden');
+		$('#divFooter button').slice(1, 7).toggleClass('hidden');
 		$('#divTextMode,#divBody').toggleClass('hidden');
 	}, function(){
 		var ar = (window.clipboardData.getData("text") || '').split('\n'), arRules = [];
@@ -880,7 +942,7 @@ function initBottomBanner(){
 		Sh.run('iexplore -new about:blank');
 	}, function(){
 		if (hostpath) 
-			window.open(hostpath.replace(/[^\\]+$/, ''), 'MxxHostEditer');
+			window.open(hostpath.replace(/[^\\]+$/, ''), 'HostEditor');
 		else alert('本程序无法找到您的HOSTS文件，也无法打开HOSTS文件所在文件夹。');
 	}, function(){
 		location.reload();
@@ -909,11 +971,9 @@ function openHelp(){
 $(function(){
 	if (!initGlobleVar()) return false;
 	initwindow();
-	ar.push(+new Date);
 	if (!initHostToDom()) {
 		return false;
 	}
-	ar.push(+new Date);
 	if (!initTopBanner()) {
 		return false;
 	}
@@ -921,19 +981,24 @@ $(function(){
 		return false;
 	}
 	window.onhelp = openHelp;
-	//alert(ar);
+	$(document).keypress(function(evt){
+		if (evt.keyCode == '13' && ' input button textarea select '.indexOf(' ' + evt.target.nodeName.toLowerCase() + ' ') == -1) {
+			$('#txtDomainFilter').focus();
+		}
+	});
 });
 //-->
 </script>
 <body>
 <div id="divHeader">
-	<div id="divCase" class="divCase"><select id="dltCase"><option>选择已保存的方案</option></select><button title="保存当前配置为方案">+</button><button title="删除当前选择的配置">-</button></div>
+	<div id="divCase" class="divCase hidden"><select id="dltCase"><option>选择已保存的方案</option></select><button title="保存当前配置为方案">+</button><button title="删除当前选择的配置">-</button></div>
 	<label>&nbsp;按域名过滤：<input type="text" id="txtDomainFilter" value="按域名过滤" title="输入对域名的模糊匹配字符串，匹配模式为: %keyword%" class="domainfilter"></label><span id="spLearning" class="learning"></span>
 </div>
 <div id="divBody"></div>
 <div id="divTextMode" class="hidden"><textarea id="taHostText"></textarea></div>
 <div id="divFooter">
 	<span id="spMsg" class="spMsg"></span>
+	<button title="把当前配置保存为方案" class="hidden">保存为方案</button>
 	<button title="切换到文本编辑模式">查看</button>
 	<button title="切换到图形编辑模式" class="hidden">编辑</button>
 	<button title="添加新的HOST规则">添加</button>
@@ -948,7 +1013,7 @@ $(function(){
 	</div>
 </div>
 <div id="divHelp" class="clshelp"><pre><a name="hlpTop"></a>
-<div class="center title">Mxx HostEditer V3.2 帮助文档</div>
+<div class="center title">HostEditor V3.2 帮助文档</div>
 <div class="center">再次按下F1可以关闭帮助文档</div>
 <strong>关键字</strong>：
   <span class="blue">图形编辑模式</span>：程序初始化时的默认编辑模式，以图形的展现和操作方式编辑纯文本的HOSTS文件。

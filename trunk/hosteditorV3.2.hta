@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-cn" lang="zh-cn">
 <head>
 <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
-<title>Hosts Editer V3.2 - 梅雪香</title>
+<title>HostEditor V3.2 - 梅雪香</title>
 <hta:application id="appMxxHostEditor" applicationname="appMxxHostEditor" singleinstance="yes" border="thin" scroll="no" maximizeButton="no">
 <style type="text/css">
 <!--
@@ -59,7 +59,6 @@ background-color:buttonface;margin:0px ;height:24px;}
 </style>
 <script type="text/javascript">
 <!--
-var ar = [+new Date];
 (function(A,w){function ma(){if(!c.isReady){try{s.documentElement.doScroll("left")}catch(a){setTimeout(ma,1);return}c.ready()}}function Qa(a,b){b.src?c.ajax({url:b.src,async:false,dataType:"script"}):c.globalEval(b.text||b.textContent||b.innerHTML||"");b.parentNode&&b.parentNode.removeChild(b)}function X(a,b,d,f,e,j){var i=a.length;if(typeof b==="object"){for(var o in b)X(a,o,b[o],f,e,d);return a}if(d!==w){f=!j&&f&&c.isFunction(d);for(o=0;o<i;o++)e(a[o],b,f?d.call(a[o],o,e(a[o],b)):d,j);return a}return i?
 e(a[0],b):w}function J(){return(new Date).getTime()}function Y(){return false}function Z(){return true}function na(a,b,d){d[0].type=a;return c.event.handle.apply(b,d)}function oa(a){var b,d=[],f=[],e=arguments,j,i,o,k,n,r;i=c.data(this,"events");if(!(a.liveFired===this||!i||!i.live||a.button&&a.type==="click")){a.liveFired=this;var u=i.live.slice(0);for(k=0;k<u.length;k++){i=u[k];i.origType.replace(O,"")===a.type?f.push(i.selector):u.splice(k--,1)}j=c(a.target).closest(f,a.currentTarget);n=0;for(r=
 j.length;n<r;n++)for(k=0;k<u.length;k++){i=u[k];if(j[n].selector===i.selector){o=j[n].elem;f=null;if(i.preType==="mouseenter"||i.preType==="mouseleave")f=c(a.relatedTarget).closest(i.selector)[0];if(!f||f!==o)d.push({elem:o,handleObj:i})}}n=0;for(r=d.length;n<r;n++){j=d[n];a.currentTarget=j.elem;a.data=j.handleObj.data;a.handleObj=j.handleObj;if(j.handleObj.origHandler.apply(j.elem,e)===false){b=false;break}}return b}}function pa(a,b){return"live."+(a&&a!=="*"?a+".":"")+b.replace(/\./g,"`").replace(/ /g,
@@ -343,7 +342,7 @@ function saveDomToHost(message, isSilence){
 	var text = getHostText().trim().split('\n').slice(0, 3).join('');
 	var oCfg = readConfig(text);
 	var HText = '#WELLFORMATED\r\n#isCheckUpdate=' + oCfg.isCheckUpdate + '&lastUpdateDate=' + oCfg.lastUpdateDate +
-	'\r\n#NOTICE:本文件内容为<Mxx Host Editer>自动生成,请不要手动修改!否则可能导致程序无法正常运行\r\n\r\n';
+	'\r\n#NOTICE:本文件内容为<HostEditor>自动生成,请不要手动修改!否则可能导致程序无法正常运行\r\n\r\n';
 	message = (message || '保存') + (setHostText(HText + getHostRulesFromDom()) ? '成功' : '失败')
 	isSilence || msg(message);
 }
@@ -525,11 +524,15 @@ function filterDomain(){
 }
 
 function initDomainFilter(){
-	return $('#txtDomainFilter').bind('drop', filterDomain).bind('paste', filterDomain).keyup(filterDomain).focus(function(){
-		if (this.value == '按域名过滤') t.value = '';
-	}).blur(function(){
-		if (this.value.empty()) t.value = '按域名过滤';
-	});
+	return $('#txtDomainFilter')
+		.bind('drop', filterDomain)
+		.bind('paste', filterDomain)
+		.bind('dblclick', function(){this.value = ''; filterDomain(); })
+		.keyup(filterDomain).focus(function(){
+			if (this.value == '按域名过滤') this.value = '';
+		}).blur(function(){
+			if (this.value.empty()) this.value = '按域名过滤';
+		});
 }
 
 function initTopBanner(){
@@ -560,7 +563,7 @@ function formatHostFile(){
 		}
 	});
 	var oCfg = readConfig(text);
-	var arHText = ['#WELLFORMATED\r\n' + '#isCheckUpdate=' + oCfg.isCheckUpdate + '&lastUpdateDate=' + oCfg.lastUpdateDate + '\r\n' + '#NOTICE:本文件内容为<Mxx Host Editer>自动生成,请不要手动修改!否则可能导致程序无法正常运行\r\n\r\n'];
+	var arHText = ['#WELLFORMATED\r\n' + '#isCheckUpdate=' + oCfg.isCheckUpdate + '&lastUpdateDate=' + oCfg.lastUpdateDate + '\r\n' + '#NOTICE:本文件内容为<HostEditor>自动生成,请不要手动修改!否则可能导致程序无法正常运行\r\n\r\n'];
 	$.each(oHost, function(k, v){
 		v.unique(function(n){
 			return n.ip;
@@ -594,10 +597,10 @@ function findGroup(dm){
 
 function createNewGroup(dm){
 	return $('<fieldset class="domaingroups" domain="' + dm + '"><legend><span>' + dm + '</span>&nbsp;<span class="act">' +
-	'<a href="#" title="移动到底部" onclick="groupMoveTo(this,\'bottom\');return false;">bottom</a>' +
-	'<a href="#" title="和下一个交换位置" onclick="groupMoveTo(this,\'down\');return false;">down</a>' +
-	'<a href="#" title="和上一个交换位置" onclick="groupMoveTo(this,\'up\');return false;">up</a>' +
-	'<a href="#" title="移动到顶部" onclick="groupMoveTo(this,\'top\');return false;">top</a>' +
+	'<a href="#" title="移动到底部" onclick="groupMoveTo(this,\'bottom\');return false;">Bottom</a>' +
+	'<a href="#" title="和下一个交换位置" onclick="groupMoveTo(this,\'down\');return false;">Down</a>' +
+	'<a href="#" title="和上一个交换位置" onclick="groupMoveTo(this,\'up\');return false;">Up</a>' +
+	'<a href="#" title="移动到顶部" onclick="groupMoveTo(this,\'top\');return false;">Top</a>' +
 	'</span></legend></fieldset>').appendTo('#divBody').hover(function(){
 		$(this).addClass('fieldsetover');
 	}, function(){
@@ -606,23 +609,28 @@ function createNewGroup(dm){
 }
 
 function groupMoveTo(lnk, key){
-	groupMoveTo.map[key].call(lnk);
-	saveDomToHost('',true);
+	var fs = $(lnk).parents('fieldset');
+	if ((key == 'up' || key == 'top') && !fs.prev('fieldset').size()) {
+		return msg('该组已经在第一位，不能再向上移动了');
+	}
+	if ((key == 'down' || key == 'bottom') && !fs.next('fieldset').size()) {
+		return msg('该组已经在最后 一位，不能再向下移动了');
+	}
+	groupMoveTo.map[key].call(lnk, fs);
+	saveDomToHost('', true);
 }
 groupMoveTo.map = {
-	bottom: function(){
-		$('#divBody').append($(this).parents('fieldset'));
+	bottom: function(fs){
+		$('#divBody').append(fs);
 	},
-	down: function(){
-		var fs = $(this).parents('fieldset');
+	down: function(fs){
 		fs.next().after(fs);
 	},
-	up: function(){
-		var fs = $(this).parents('fieldset');
+	up: function(fs){
 		fs.prev().before(fs);
 	},
-	'top': function(){
-		$('#divBody').prepend($(this).parents('fieldset'));
+	'top': function(fs){
+		$('#divBody').prepend(fs);
 	}
 };
 function addOneRuleToGroup(fs, oRule, isUnique){
@@ -800,7 +808,7 @@ function initBottomBanner(){
 			location.reload();
 			return;
 		}
-		$('#divFooter button').slice(0, 4).toggleClass('hidden');
+		$('#divFooter button').slice(0, 6).toggleClass('hidden');
 		$('#divTextMode,#divBody').toggleClass('hidden');
 	}, function(){
 		var ar = (window.clipboardData.getData("text") || '').split('\n'), arRules = [];
@@ -880,7 +888,7 @@ function initBottomBanner(){
 		Sh.run('iexplore -new about:blank');
 	}, function(){
 		if (hostpath) 
-			window.open(hostpath.replace(/[^\\]+$/, ''), 'MxxHostEditer');
+			window.open(hostpath.replace(/[^\\]+$/, ''), 'HostEditor');
 		else alert('本程序无法找到您的HOSTS文件，也无法打开HOSTS文件所在文件夹。');
 	}, function(){
 		location.reload();
@@ -909,11 +917,9 @@ function openHelp(){
 $(function(){
 	if (!initGlobleVar()) return false;
 	initwindow();
-	ar.push(+new Date);
 	if (!initHostToDom()) {
 		return false;
 	}
-	ar.push(+new Date);
 	if (!initTopBanner()) {
 		return false;
 	}
@@ -921,7 +927,11 @@ $(function(){
 		return false;
 	}
 	window.onhelp = openHelp;
-	//alert(ar);
+	$(document).keypress(function(evt){
+		if (evt.keyCode == '13' && ' input button textarea select '.indexOf(' ' + evt.target.nodeName.toLowerCase() + ' ') == -1) {
+			$('#txtDomainFilter').focus();
+		}
+	});
 });
 //-->
 </script>
@@ -948,7 +958,7 @@ $(function(){
 	</div>
 </div>
 <div id="divHelp" class="clshelp"><pre><a name="hlpTop"></a>
-<div class="center title">Mxx HostEditer V3.2 帮助文档</div>
+<div class="center title">HostEditor V3.2 帮助文档</div>
 <div class="center">再次按下F1可以关闭帮助文档</div>
 <strong>关键字</strong>：
   <span class="blue">图形编辑模式</span>：程序初始化时的默认编辑模式，以图形的展现和操作方式编辑纯文本的HOSTS文件。
