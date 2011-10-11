@@ -1,4 +1,4 @@
-﻿HostEditor V3.2
+HostEditor V3.2
 1.使用最新的JQuery1.4.2，运行速度更快
 2.对界面进行了优化调整
 3.修正了添加多条规则时的bug
