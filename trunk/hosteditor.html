@@ -20,7 +20,7 @@ html, body{font-size:12px;background-color: #efefef;width:100%;height:100%;curso
 .main .ui-selecting ,
 .main .ui-selected { background: #400000; color: white; }
 
-.case{padding:2px; float:left; width:180px; border-right:2px solid #808080; /*background-color:#00ffff;*/}
+.case{float:left; width:180px; border-right:2px solid #808080; /*background-color:#00ffff;*/}
 .case .case_rules{}
 .case .case_rules dd{ text-align:right; }
 
@@ -93,10 +93,7 @@ html, body{font-size:12px;background-color: #efefef;width:100%;height:100%;curso
 <div class="contextMenu" id="div_rule_cmenu" style="display:none;">
     <ul>
         <li id="copy">复制</li>
-        <li id="edit">编辑IP</li>
         <li id="remove">删除</li>
-        <li id="newcase">新增环境</li>
-        <li id="rmallcase">删除所有环境</li>
     </ul>
 </div>
 <div id="div_message" style="padding: 0.7em; display:none; position:fixed;">
@@ -104,6 +101,7 @@ html, body{font-size:12px;background-color: #efefef;width:100%;height:100%;curso
 </div>
 <script src="jquery-1.6.4.js"></script>
 <script src="jquery-ui-1.8.16.custom.min.js"></script>
+<script src="jquery.simplemodal-1.4.1.js"></script>
 <script src="jquery.masonry.js"></script>
 <script src="jquery.contextmenu.r2.js"></script>
 <script src="json2.js"></script>
