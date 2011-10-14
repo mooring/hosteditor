@@ -47,15 +47,15 @@ var Editor = {
 		json = jsonCasesData;//for debug
 		var arHtml = [], temp = '<dl><dt>{d}</dt><dd>{i}</dd></dl>';
 		$.each(json, function(k, ar){
-			arHtml.push(['<h3><a href="">', k, '</a></h3><div class="case_rules">', $.format(temp, ar), '</div>'].join(''));
+			arHtml.push(['<h3 casename="',k,'"><a href="">', k, '</a></h3><div class="case_rules">', $.format(temp, ar), '</div>'].join(''));
 		});
 		$('#case').html(arHtml.join(''));
 	},
 	getCasesData: function(){
-		var $dlHosts = $("#main dl"), json = {};
-		$dlHosts.each(function(_, dl){
-			var $dt = $('dt', dl), $dds = $('dd', dl), dm = $dt.attr('domain');
-			json[dm] = [];
+		var $dlCases = $("#case h3"), json = {};
+		$dlCases.each(function(_, head){
+			var $head = $(head), $div = $head.next(), caseName = $head.attr('casename');
+			json[caseName] = [];
 			$dds.each(function(_, $dd){
 				$dd = $($dd);
 				json[dm].push({
