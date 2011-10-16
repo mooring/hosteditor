@@ -5,12 +5,12 @@
 <meta http-equiv="X-UA-Compatible" content="IE=Edge">
 <title>Hosts Editor V4.0 - 梅雪香</title>
 <hta:application id="appHostEditor" applicationname="appHostEditor" singleins tance="yes" innerBorder="no" scroll="no" showInTaskBar="yes" icon=""/>
-<link rel="stylesheet" href="css/vader/jquery-ui-1.8.16.custom.css">
+<link rel="stylesheet" href="css/vader/jquery-ui-1.8.16.custom.css"/>
 <style type="text/css">
 * {margin:0px;padding:0px;}
 html, body{font-size:12px;background-color: #efefef;width:100%;height:100%;cursor:default; color:#141414;}
 
-.main{overflow:hidden; /*background-color:#f08080; */}
+.main{overflow:hidden; position:relative; /*background-color:#f08080; */}
 .main dl{margin:3px; overflow:hidden; position:absolute; border:1px solid #804040; width:132px; background-color: white;  /* border-radius: 4px;*/}
 .main dl dt{background-color: #804040; color:white; font-weight:bold;}
 .main dl dd{ margin:2px 1px;  border-bottom:1px dotted #ffefdf;}
@@ -20,92 +20,40 @@ html, body{font-size:12px;background-color: #efefef;width:100%;height:100%;curso
 .main .ui-selecting ,
 .main .ui-selected { background: #400000; color: white; }
 
-.case{float:left; width:180px; border-right:2px solid #808080; /*background-color:#00ffff;*/}
+.case{padding:2px; float:left; width:180px; border-right:2px solid #808080; /*background-color:#00ffff;*/}
 .case .case_rules{}
 .case .case_rules dd{ text-align:right; }
 
 .footer{width:100%; height:80px; position:fixed; _position:absolute; bottom:0px;  background-color:#808080;/**/}
 
 </style>
-<body>
-<div id="case" class="case">
-	<h3><a href="#">开发环境</a></h3>
-	<div>
-		<dl>
-			<dt>imgcache.qq.com</dt>
-			<dd>172.25.32.72</dd>
-		</dl>
-		<dl>
-			<dt>imgcache.qq.com</dt>
-			<dd>172.25.32.72</dd>
-		</dl>
-		<dl>
-			<dt>imgcache.qq.com</dt>
-			<dd>172.25.32.72</dd>
-		</dl>
-	</div>
-	<h3><a href="#">测试环境</a></h3>
-	<div>
-		<dl>
-			<dt>imgcache.qq.com</dt>
-			<dd>172.25.32.72</dd>
-		</dl>
-		<dl>
-			<dt>imgcache.qq.com</dt>
-			<dd>172.25.32.72</dd>
-		</dl>
-		<dl>
-			<dt>imgcache.qq.com</dt>
-			<dd>172.25.32.72</dd>
-		</dl>
-	</div>
-	<h3><a href="#">预发布环境</a></h3>
-	<div>
-		<dl>
-			<dt>imgcache.qq.com</dt>
-			<dd>172.25.32.72</dd>
-		</dl>
-		<dl>
-			<dt>imgcache.qq.com</dt>
-			<dd>172.25.32.72</dd>
-		</dl>
-		<dl>
-			<dt>imgcache.qq.com</dt>
-			<dd>172.25.32.72</dd>
-		</dl>
-		<dl>
-			<dt>imgcache.qq.com</dt>
-			<dd>172.25.32.72</dd>
-		</dl>
-	</div>
-	<h3><a href="#">正式环境</a></h3>
-	<div>
-		<dl>
-			<dt>imgcache.qq.com</dt>
-			<dd>172.25.32.72</dd>
-		</dl>
-	</div>
-
-</div>
-<div id="main" class="main"></div>
-<div id="footer" class="footer"></div>
-
-<div class="contextMenu" id="div_rule_cmenu" style="display:none;">
-    <ul>
-        <li id="copy">复制</li>
-        <li id="remove">删除</li>
-    </ul>
-</div>
-<div id="div_message" style="padding: 0.7em; display:none; position:fixed;">
-	<p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span><strong></strong></p>
-</div>
 <script src="jquery-1.6.4.js"></script>
 <script src="jquery-ui-1.8.16.custom.min.js"></script>
-<script src="jquery.simplemodal-1.4.1.js"></script>
 <script src="jquery.masonry.js"></script>
 <script src="jquery.contextmenu.r2.js"></script>
 <script src="json2.js"></script>
 <script src="common.js"></script>
+<body>
+<div id="case" class="case"></div>
+<div id="main" class="main"></div>
+<div id="footer" class="footer"></div>
+<div class="contextMenu" id="div_rule_cmenu" style="display:none;">
+    <ul>
+        <li id="copy" class="rule">复制</li>
+        <li id="edit" class="rule">编辑IP</li>
+        <li id="remove" class="rule">删除</li>
+        <li id="addtocase" class="rule">添加到当前环境</li>
+        <li id="newcase" class="case">新增环境</li>
+        <li id="delallcase" class="case">删除所有环境</li>
+    </ul>
+</div>
+<div id="div_message" style="padding: 0.7em; display:none; z-index:9999; position:fixed;">
+	<p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span><strong></strong></p>
+</div>
+<div id="dialog-confirm" title="Empty the recycle bin?">
+	<p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>These items will be permanently deleted and cannot be recovered. Are you sure?</p>
+</div>
+
 <script src="hosteditor.js"></script>
 </body>
 </html>

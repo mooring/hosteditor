@@ -53,60 +53,75 @@ $.fn.center = function(){
 };
 
 (function(){
-	var divMsg = $('#div_message');
 	$.message = function(text, time){
-		divMsg.removeClass().addClass('ui-state-highlight ui-corner-all').center();
-		divMsg.fadeIn().delay(time || 1500).fadeOut().find('strong').html(text);
+		$('#div_message').stop(true, false).removeClass().addClass('ui-state-highlight ui-corner-all').center()
+		.fadeTo('fast', 1).delay(time || 2000).fadeOut('fast').find('strong').html(text);
 	};
 	$.error = function(text, time){
-		divMsg.removeClass().addClass('ui-state-error ui-corner-all').center();
-		divMsg.fadeIn().delay(time || 1500).fadeOut().find('strong').html(text);
+		$('#div_message').stop(true, false).removeClass().addClass('ui-state-error ui-corner-all').center()
+		.fadeTo('fast', 1).delay(time || 2000).fadeOut('fast').find('strong').html(text);
+	};
+	$.confirm = function(text, title, opt){
+		$("#dialog-confirm").attr('title', title || '温馨提示').find('p').text(text).end().dialog($.extend(true, {
+			resizable: false,
+			height: 140,
+			modal: true,
+			buttons: {
+				'取消': function(){
+					$(this).dialog("close");
+				}
+			}
+		}, opt));
 	};
 })();
 
 function copy(text){
 	return window.clipboardData.setData("Text", text);
 }
+(function(){
+	var stopPropagation = function(evt){
+		evt.stopPropagation();
+	};
+	$.fn.accordionHeadEditor = function(option){
+		var opt = $.extend({
+			attr: 'custom',
+			template: '<a href="">{value}</a>',
+			keepValue: true,
+			hint: '',
+			check: function(){
+				return true;
+			},
+			cancel: function(){
+				this.add(this.next()).remove();
+			},
+			change: $.noop,
+			blur: function(evt){
+				var val = this.value, bChk;
+				if (!val || val == opt.hint) {
+					opt.cancel.call($(this).parent());
+				} else if ((bChk = opt.check(val)) === true) {
+					$(this).parent().attr(opt.attr, val).html($.format(opt.template, {
+						value: val
+					}));
+					opt.change(val);
+				} else {
+					$.message(bChk);
+					$(this).select();
+				}
+			}
+		}, option);
+		opt.keepValue || this.val(opt.hint);
+		return this.click(stopPropagation).keydown(stopPropagation).keypress(function(evt){
+			if (evt.keyCode == 13) {
+				this.blur();
+			}
+		}).blur(opt.blur).select();
+	};
+})();
 
 
 
 
-/**
- * host规则的单条增加，批量增加，方案增加，修改，删除，复制，克隆
- * host规则的备份，方案备份，用户使用数据备份
- *
- * 怎样的体验？
- */
-function Rule(sharp, ip, domain, comment){
-	this.sharp = sharp;
-	this.ip = ip;
-	this.domain = domain;
-	this.comment = comment;
-}
-
-function rulesToJson(text){
-	var r = /(#?)\s*(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(\s+([a-z0-9\-\.]+))+/ig, ar = [], m, p, o = {};
-	while (m = r.exec(text)) {
-		m[3].trim().split(/\s+/).forEach(function(dm, i){
-			o[dm] || (o[dm] = []);
-			o[dm].push(new Rule(m[1], m[2], dm, ''));
-		});
-	}
-	return o;
-}
-
-/**
- * 把hosts文件转为xml格式
- * 1. 兼容合并的规则（一个ip对应多个域名）
- * 2. 检测错误的规则（为同一个域名配置了多个ip）
- */
-function cvtHostsToXml(text){
-	var m, r = /(#?)[\f\t\v\x20]*(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})[\f\t\v\x20]+(\S+)[\f\t\v\x20]*(#(.*))?/g;
-	while (m = r.exec(text)) {
-	
-	}
-	return '<root></root>';
-}
 
 $.attempt = function(){
 	for (var i = 0, l = arguments.length; i < l; i++) {
@@ -119,57 +134,5 @@ $.attempt = function(){
 };
 
 function see(value, replacer, space){
-	return alert(JSON.stringify(value, replacer, space));
+	return alert(JSON.stringify(value, replacer, space).replace(/\r\n/g, '\n'));
 }
-
-var jsonCasesData = {
-	'正式环境': [{
-		s: '',
-		i: '172.25.32.72',
-		d: 'imgcache.qq.com',
-		c: ''
-	}, {
-		s: '',
-		i: '172.25.32.72',
-		d: 'qzs.qq.com',
-		c: ''
-	}, {
-		s: '',
-		i: '172.25.32.72',
-		d: 'qzstyle.qq.com',
-		c: ''
-	}],
-	'开发环境': [{
-		s: '',
-		i: '172.25.32.72',
-		d: 'imgcache.qq.com',
-		c: ''
-	}, {
-		s: '',
-		i: '172.25.32.72',
-		d: 'qzs.qq.com',
-		c: ''
-	}, {
-		s: '',
-		i: '172.25.32.72',
-		d: 'qzstyle.qq.com',
-		c: ''
-	}],
-	'预发布环境': [{
-		s: '',
-		i: '172.25.32.99',
-		d: 'imgcache.qq.com',
-		c: ''
-	}, {
-		s: '',
-		i: '172.25.32.99',
-		d: 'qzs.qq.com',
-		c: ''
-	}, {
-		s: '',
-		i: '172.25.32.99',
-		d: 'qzstyle.qq.com',
-		c: ''
-	}]
-};
-
