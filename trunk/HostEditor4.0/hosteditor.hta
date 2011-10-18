@@ -1,0 +1,65 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+<!--meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7" /-->
+<meta http-equiv="X-UA-Compatible" content="IE=Edge">
+<title>Hosts Editor V4.0 - 梅雪香</title>
+<hta:application id="appHostEditor" applicationname="appHostEditor" singleinstance="no" innerBorder="no" scroll="no" showInTaskBar="yes" icon=""/>
+<style type="text/css">
+* {margin:0px;padding:0px;}
+html, body{font-size:12px;background-color: #efefef;width:100%;height:100%;cursor:default; color:#141414; overflow:hidden;}
+
+button{height:30px; padding:4px 10px; border:1px solid #c0c0c0; border-radius: 6px; }
+
+.main{color:#1f1f1f;;overflow:hidden; position:relative; /*background-color:#f08080; */}
+.main dl{overflow:hidden; position:absolute; border:1px solid #808080; width:133px; background-color: white;  /* border-radius: 4px;*/}
+.main dl dt{ padding:4px 2px; background-color: #808080; color:white; font-weight:bold;}
+.main dl dd{ margin:2px; line-height:18px; height:18px; padding:0 4px; border:1px dotted #804040;}
+
+.main dd.selected { text-align:center; background: #808080; color: white; border-radius: 10px; font-weight:bold;}
+
+.case{padding:2px; float:left; width:180px; border-right:2px solid #808080; /*background-color:#00ffff;*/}
+.case .case_rules{}
+.case .case_rules dd{ text-align:right; }
+
+.footer{ text-align:right; height:45px; padding:8px 10px 0 0; background-color:#808080;/**/}
+
+/* Corner radius */
+.ui-corner-all, .ui-corner-top, .ui-corner-left, .ui-corner-tl { border-top-left-radius: 4px; }
+.ui-corner-all, .ui-corner-top, .ui-corner-right, .ui-corner-tr { border-top-right-radius: 4px; }
+.ui-corner-all, .ui-corner-bottom, .ui-corner-left, .ui-corner-bl { border-bottom-left-radius: 4px; }
+.ui-corner-all, .ui-corner-bottom, .ui-corner-right, .ui-corner-br { border-bottom-right-radius: 4px; }
+
+.modalCloseImg{position:absolute; top:0px; right:5px; text-align:center; width:35px; height:15px; font-weight:bolder; font-size:14px; 
+	color:#ffffff; border-bottom-right-radius: 4px; border-bottom-left-radius: 4px; background:#910000;}
+
+.dialog{min-width:300px; background:#c6c6c6; padding:2px;}
+.dialog .dialog-title{height:24px; font-weight:bold; padding: 8px 0 0 10px ; background:#c6c6c6;}
+.dialog .dialog-content{padding:0px 10px;  border-bottom:1px solid #c0c0c0; border-top:1px solid #c0c0c0; /*background-color:#00ffff;*/}
+.dialog .dialog-content .dialog-message{padding:15px 20px;}
+.dialog .dialog-buttons{padding:10px; text-align:center;}
+.dialog .dialog-buttons button{margin:0 10px; }
+.dialog .simplemodal-close{font-weight:bolder; font-size:14px; background:#910000; color:#ffffff;}
+
+.add-hosts-area{padding:2px; width:390px; height:200px; overflow:auto;}
+
+</style>
+<body>
+<div id="env" class="case"></div>
+<div id="main" class="main"></div>
+<div id="foot" class="footer">
+	<button command="openAddWin">添加</button>
+</div>
+
+<div id="div_message" style="padding: 0.7em; display:none; z-index:9999; position:fixed;">
+	<p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span><strong></strong></p>
+</div>
+<div id="dialog-confirm" title="Empty the recycle bin?">
+	<p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span></p>
+</div>
+<script src="jquery.js"></script>
+<script src="../json2.js"></script>
+<script src="hosteditor.js"></script>
+</body>
+</html>

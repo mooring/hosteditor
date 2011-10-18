@@ -119,20 +119,6 @@ function copy(text){
 	};
 })();
 
-
-
-
-
-$.attempt = function(){
-	for (var i = 0, l = arguments.length; i < l; i++) {
-		try {
-			return arguments[i]();
-		} catch (e) {
-		}
-	}
-	return null;
-};
-
 function see(value, replacer, space){
 	return alert(JSON.stringify(value, replacer, space).replace(/\r\n/g, '\n'));
 }
