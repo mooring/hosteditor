@@ -2,9 +2,9 @@
 <html>
 <head>
 <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
-<!--meta http-equiv="X-UA-Compatible" content="IE=EmulateIE6" /-->
-<!--meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7" /-->
-<!--meta http-equiv="X-UA-Compatible" content="IE=EmulateIE8" /-->
+<!--meta http-equiv="X-UA-Compatible" content="IE=EmulateIE6"/ !-->
+<!--meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7"/ !-->
+<!--meta http-equiv="X-UA-Compatible" content="IE=EmulateIE8"/ !-->
 <meta http-equiv="X-UA-Compatible" content="IE=Edge">
 <title>Hosts Editor V4.0 - 梅雪香</title>
 <hta:application id="appHostEditor" applicationname="appHostEditor" singleinstance="no" innerBorder="no" scroll="no" showInTaskBar="yes" icon=""/>
@@ -12,8 +12,7 @@
 * {margin:0px; padding:0px;}
 html, body{ font-size:12px;background-color: #efefef;width:100%;height:100%;cursor:default; color:#141414; overflow:hidden;}
 
-button{height:30px; padding:4px 10px; border:1px solid #c0c0c0; border-radius: 6px; }
-
+button{height:30px; padding:4px 4px; border:1px solid #c0c0c0; border-radius: 6px; }
 /* Corner radius */
 .ui-corner-all, .ui-corner-top, .ui-corner-left, .ui-corner-tl { border-top-left-radius: 4px; }
 .ui-corner-all, .ui-corner-top, .ui-corner-right, .ui-corner-tr { border-top-right-radius: 4px; }
@@ -37,8 +36,8 @@ button{height:30px; padding:4px 10px; border:1px solid #c0c0c0; border-radius: 6
 
 
 dl{display:block;}
-dd{ margin:2px; line-height:18px; height:18px; padding:0 4px; border:1px dotted #804040; }
-dd.selected { text-align:center; background: #400000; color: white; border-radius: 8px; font-weight:bold;}
+dd{ margin:2px; line-height:20px; height:20px; padding:0 4px; border:1px dotted #804040; }
+dd.selected {background: #400000; color: white; border-radius: 8px; font-weight:bold;}
 dd.ui-draggable-dragging{width:119px;}
 
 .main{color:#1f1f1f; overflow:hidden; position:relative;}
@@ -47,7 +46,7 @@ dd.ui-draggable-dragging{width:119px;}
 
 .main dl.drophover{border:2px solid #ff00ff; background: #00ff00; }
 
-.main .editable{width:90%; padding:1px 3px;}
+.main .editable{width:92%; padding:1px 3px;}
 
 .env{float:left; width:180px; border-right:2px solid #808080;}
 .env dl{ overflow:hidden; border:1px dotted #808080; margin:2px 0; padding:2px;}
@@ -82,21 +81,19 @@ dd.ui-draggable-dragging{width:119px;}
 <div class="none watermark">梅雪香出品 大陆行货</div>
 <div id="foot" class="footer">
 	<div id="div_message" class="message ui-corner-all"></div>
+	<button id="masonry" expand="masonry">排列</button>
+	<button id="masonryBottom" class="none masonry combine-button-left">底部</button><button id="masonryTop" class="none masonry combine-button-right">顶部</button>
 	<button id="shareThis" expand="share">分享</button>
 	<button id="shareToPy" class="none share combine-button-left">朋友社区</button><button id="shareToSina" class="none share combine-button-middle">新浪微博</button><button id="shareToQQ" class="none share combine-button-right">腾讯微博</button>
 	<button id="expandOpen" expand="open">打开</button>
-	<button id="openFolder" class="none open combine-button-left">Host文件夹</button><button id="openIE" class="none open combine-button-middle">IE</button><button id="openFile" class="none open combine-button-right">Host文件</button>
+	<button id="openFolder" class="none open combine-button-left">Host文件夹</button><button id="openIE" class="none open combine-button-middle">IE浏览器</button><button id="openFile" class="none open combine-button-right">Host文件</button>
 	<button id="openAddWin">添加</button>
 	<button id="about">关于</button>
+	<button id="more">更多</button>
 </div>
 
 <script src="jquery.js"></script>
 <script src="jquery-ui.js"></script>
-<!--script src="jquery.ui.core.js"></script>
-<script src="jquery.ui.widget.js"></script>
-<script src="jquery.ui.mouse.js"></script>
-<script src="jquery.ui.draggable.js"></script>
-<script src="jquery.ui.droppable.js"></script-->
 <script src="jquery-custom-plugins.js"></script>
 <script src="json2.js"></script>
 <script src="hosteditor.js"></script>
