@@ -1,0 +1,369 @@
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+<title>Hosts Editor - 梅雪香</title>
+<hta:application ID="oHTA" applicationame="myApp" border="thin" scroll="no" singleinstance="yes" maximizeButton="no" 
+><!-- ICON="http://meixx.go1.icpcn.com/01.ico"  -->
+<style type="text/css">
+<!--
+body{margin:0px;overflow:hidden;background-color:#B3C1D2;font-size:12px; }
+button{margin-left:5px;border:0px;background-color:#99CC00 }
+
+#divMain{ position:relative;height:550px;overflow:auto;margin-top:5px;}
+#divMain .div{padding-left:4px;margin-bottom:2px;height:22px;border:1px solid #B3C1D2;}
+#divMain div span{border:1px solid #9EADBF;}
+#divMain div a{margin-left:2px;color:red;}
+#divMain div input{border:1px solid #9EADBF;margin-left:2px;margin-right:2px;background-color:#D6E1EE;color:#2A333A;}
+#divMain div .chk{width:22px;height:100%;}
+#divMain div .IP{width:100px;}
+#divMain div .domain{width:150px;}
+#divMain div .comment{width:420px;}
+#divBottom{height:25px;text-align:right;}
+#divHead { height:20px;padding-left:5px;}
+#divHead span{text-align:center;font-size:12px;font-weight:bold; background-color: #c3c3c3;margin-right:4px;background-color: #c3c3c3;height:100%;}
+.sp1{width:22px; margin-left:2px;}
+.sp2{width:100px;cursor:pointer;}
+.sp3{width:150px;cursor:pointer;}
+.sp4{width:420px;}
+#fPath{display:none}
+#divBottom button{ border:1px solid #9EADBF; background-color:#B3C1D2;font-size:12px; width:60px; height:26px;background-color:#AABCCE; color: #3E3E3E}
+#divBottom a{ margin-left:20px; margin-right:5px; position:relative;}
+#divBottom .left{ position:absolute; left:0px; margin-left:10px;}
+#divBottom .right{ position:absolute; right:0px; }
+#divBottom .fgf{ margin-left:5px;margin-right:2px;color:#9EADBF;font-size:15px; }
+
+.split{height:1px;margin-left:10px;margin-right:10px;border:1px inset #9EADBF; margin-top:0px;margin-bottom:0px; }
+#divContent{display:none; position:absolute; width:100%; height:548px; top:0px; left:0px; ;z-index:999;}
+#taContent{width:100%;height:100%;overflow:auto;padding-left:20px;border:0px;}
+#divHelp{display:none;width:100%;height:100%;position:absolute;top:0px;left:0px;margin:0px;padding:5px;background-color:#FFFFFF;overflow:auto;}
+#lnkHelp{position:absolute; top:1px; right:20px;}
+-->
+</style>
+<script type="text/javascript"><!--
+function $(id){ return document.getElementById(id);}
+String.prototype.frmWithSpace=function(n){  return (this+"             ").substring(0,n); }
+String.prototype.trim=function(){  return this.replace(/(^(\s|　)+)|((\s|　)+$)/g,""); }
+Array.prototype.foreach=function(f){  for(var i=0,l=this.length;i<l;i++) f(this,i); }
+//初始化全局变量
+function initGvar(){
+    window.gvar= {winwidth:810,winheight:634,scrnwidth:screen.availWidth,scrnheight:screen.availHeight};
+    //hosts文件地址,一般为:X:\\windows\\system32\\drivers\\etc\\hosts
+    gvar.fso = new ActiveXObject("Scripting.FileSystemObject");
+    gvar.hostpath = "";
+    gvar.regkey = "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\SystemRoot";
+    //缓存路径,因机而异
+    gvar.text = "";
+    gvar.divRules = [];
+    gvar.isEverSaved = false;
+    gvar.arr = [];
+    gvar.div = (function(){
+        var d=document.createElement("DIV");
+        d.className = "div";
+        d.innerHTML ='<input type="checkbox" hidefocus="true" class="chk" [onproperty]><input type="text" class="IP" title="IP地址" [onproperty]><input type="text" class="domain" title="域名" [onproperty]><input type="text" class="comment" title="注释" [onproperty]><span title="删除"><a href="javascript:void(0)" onclick="delHostRule(this.parentNode.parentNode)" class="link"> X <\/a></span><span title="复制此行"><a href="javascript:void(0)" onclick="copyRule(this.parentNode.parentNode)" class="link"> C <\/a></span><span title="打开当前域名"><a href="javascript:void(0)" target="_blank" onclick="openDomain(this.parentNode.parentNode)" class="link"> O <\/a></span>';
+        return d;
+    })();
+}
+//保存文件
+function save(){
+    try{
+        wrFile(gvar.arr.join("%split%").split(/%split%/).join("\r\n"));
+    }catch(e){
+        alert("保存文件\n" + gvar.hostpath + "\n失败!\n请检查文件是否为只读属性");
+        window.location.reload();
+    }
+}
+function wrFile(s){
+    var ts = gvar.fso.OpenTextFile(gvar.hostpath, 2);
+    //删除空行并写入文件
+    ts.write( s );
+    ts.close();
+}
+//从div中读取host规则
+function getText(div){
+    var is = div.getElementsByTagName("input");
+    for(var i=0,l=is.length;i<l;i++){
+        var ip = is[1].value.trim(),domain=is[2].value.trim(),comment=is[3].value.trim();
+        if(ip == "" || domain == ""){ div.style.backgroundColor="red"; setTimeout(function(){div.style.backgroundColor=""},3000); return "#该行数据非法"; }
+        var n = Math.ceil(domain.length/10)*10;
+        return ((is[0].checked?"#":"") + ip.frmWithSpace(is[0].checked?19:20)
+            + domain.frmWithSpace(n<20?20:n) + (comment==""?"":("#"+comment))).trim();
+    }
+}
+function saveHostsFile(){
+    var e = window.event;
+    var src = e.srcElement;
+    //alert(e.type);
+    if(e.type == "click"){//删除一行规则的时候
+        save();
+    }else if ((e.propertyName == "value" || e.propertyName == "checked")){//有规则被修改的时候
+        var div = src.parentNode;
+        var idx = parseInt(div.getAttribute("idx"),10);
+        gvar.arr[idx] = getText(div);
+        //alert(gvar.arr[idx]);
+        save();
+    }else{
+    
+    }
+}
+function initDom(){
+    var ar = gvar.arr;
+    var strMouse = ' onmouseover="this.focus();this.select();" onmouseout=""';
+    var strProperty = ' onpropertychange="saveHostsFile()"';
+    function f(a,i){
+        var s = a[i] = a[i].trim();
+        if(/^#?\s*(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\s+(\S+)\s*(#(.*))?/.test(s)){
+            var div = gvar.div.cloneNode(true);
+            div.onmouseover=function(){this.style.border = "1px solid #97A7BB";};
+            div.onmouseout =function(){this.style.border = "1px solid #B3C1D2";};
+            div.setAttribute("idx",i);
+            ns.divMain.appendChild(div);
+            var values = [(s.charAt(0)=="#"?'checked ':""),'value="'+RegExp.$1+'"','value="'+RegExp.$2+'"','value="'+RegExp.$4+'"'];
+            var reps = [values[0]+strProperty,values[1]+strMouse+strProperty,values[2]+strMouse+strProperty,values[3]+strMouse+strProperty];
+            var k=0;
+            div.innerHTML = div.innerHTML.replace(/\[onproperty\]/g,function(){return reps[k++]});
+            gvar.divRules.push(div);
+        }else if(/^#/.test(s)||s==""){}
+        else{
+            //出现非法数据
+            alert("第 "+(i+1)+" 行数据非法:" + s);
+        }
+    }
+    ar.foreach(f);
+}
+function initwindow(){
+    window.resizeTo(810,634);
+    //window.moveTo((gvar.scrnwidth - gvar.winwidth)/2,(gvar.scrnheight - gvar.winheight)/2);  //居中
+    //window.moveTo((gvar.scrnwidth - gvar.winwidth),(gvar.scrnheight - gvar.winheight));  //右下
+    //window.moveTo((gvar.scrnwidth - gvar.winwidth)/2,(gvar.scrnheight - gvar.winheight));  //中下
+    window.moveTo((gvar.scrnwidth - gvar.winwidth)/2,(gvar.scrnheight - gvar.winheight-26));  //中下
+}
+function getElementRef(){
+    window.ns= {};
+    var ids = ["divTop","divHelp","divMain","divBottom","fPath","btnShowView","btnClose","chkComment","divContent","taContent","btnSave","spIP","spDomain"];
+    ids.foreach(function(a,i){ns[a[i]] = $(a[i]);});
+}
+//复制一条host规则
+function copyRule(div){
+    var d = div.cloneNode(true);
+    var ar = gvar.arr;
+    ar.push(ar[d.getAttribute("idx")]);
+    d.setAttribute("idx",ar.length-1);
+    d.style.border = "1px solid #B3C1D2";
+    ns.divMain.appendChild(d);
+    d.onmouseover=function(){this.style.border = "1px solid #97A7BB";};
+    d.onmouseout =function(){this.style.border = "1px solid #B3C1D2";};
+    save();
+    event.returnValue = false;
+    return false;
+}
+//删除一条host规则
+function delHostRule(div){
+    if(!confirm("确定要删除吗?")) return false;
+    var idx = parseInt(div.getAttribute("idx"),10);
+    gvar.arr[idx] = "";
+    ns.divMain.removeChild(div);
+    saveHostsFile();
+    event.returnValue = false;
+    return false;
+}
+//在新窗口中打开域名地址
+function openDomain(div){
+    var url = "http://"+div.getElementsByTagName("input")[2].value;
+    if(ns.chkComment.checked==true){
+        var val = div.getElementsByTagName("input")[3].value;
+        url += (val.charAt(0) == "/" ? val : "/" + val);
+    }
+    window.open(url,(Math.random()+"").replace(/^0\./,"win"));
+    event.returnValue = false;
+    return false;
+}
+//读取host文件
+function readFile(){
+    gvar.text = read();
+    gvar.arr = gvar.text.split(/\n/);
+}
+function read(){
+    if (!gvar.fso.FileExists(gvar.hostpath)){
+        alert(gvar.hostpath+"文件不存在.\n请选择要编辑的hosts文件!");
+        gvar.hostpath = "";
+        ns.fPath.click();
+    }
+    if(gvar.hostpath == ""){ alert("您没有选择任何Hosts文件"); return ""; }
+    var file = gvar.fso.GetFile(gvar.hostpath);
+    var ts = gvar.fso.OpenTextFile(gvar.hostpath, 1);
+    var text = (file.Size>0?ts.ReadAll():"").replace(/　/g," ").replace(/\r(\n)/g,"$1").replace(/\r/g,"\n");
+    ts.close();
+    return text;
+}
+function addStyle(ref){
+    ref.onmouseover = function (){ this.style.color = "#FF2A00"; this.style.backgroundColor = "#bbcada"};
+    ref.onmouseout = function (){ this.style.color = "#3E3E3E"; this.style.backgroundColor = "#B3C1D2"};
+}
+//在可视化编辑和手动编辑之间切换函数
+function show(btn){
+    var f = {
+        "View":function(b){ns.divContent.style.display = "block"; ns.taContent.value = read(); b.value = "Edit"; ns.btnSave.style.display = "";},
+        "Edit":function(b){ns.divContent.style.display = "none"; b.value = "View"; ns.btnSave.style.display = "none"; if(gvar.isEverSaved) window.location.reload();}
+    };
+    f[btn.value](btn);
+}
+//为DOM元素注册事件
+function addEvtListener(){
+    ns.fPath.onchange = function(){gvar.hostpath = this.value;};
+    addStyle(ns.btnShowView);
+    addStyle(ns.btnClose);
+    ns.btnClose.onclick = function(){window.opener=null; window.close();};
+    ns.btnShowView.onclick = function(){ show(this); };
+    ns.btnSave.onclick = function (){ wrFile(ns.taContent.value);gvar.isEverSaved=true;};
+    ns.spIP.onclick=function(){sort(gvar.divRules,funcond ,1)};
+    ns.spDomain.onclick=function(){sort(gvar.divRules,funcond ,2)};
+}
+//初始化
+function init(){
+    getElementRef();
+    initGvar();
+    initwindow();
+//    Sh.RegRead("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\SystemRoot");
+//    gvar.hostpath = "C:\\WINDOWS\\system32\\drivers\\etc\\hosts";
+
+    if (!gvar.fso.FileExists(gvar.hostpath)){
+        var Sh = new ActiveXObject("WScript.Shell");
+        gvar.hostpath = Sh.RegRead(gvar.regkey) + "\\system32\\drivers\\etc\\hosts";
+        if (!gvar.fso.FileExists(gvar.hostpath) ){
+            help();
+            alert("您还没有配置本软件的参数,或者配置参数不正确.\n请查看帮助文档的\"如何配置该软件\"部分!");
+            return;
+        }
+    }
+    addEvtListener();
+    readFile();
+    initDom();
+    //sort(gvar.divRules,funcond ,2);
+}
+//排序函数
+function sort(els,fc,flag){
+    var l = els.length;
+    for(var i=0;i<l-1;i++){
+        for(var j=i+1;j<l;j++){
+            if(fc(els[i],els[j],flag)>0){
+                swap(els[i],els[j]);
+                var t = els[i];
+                els[i]=els[j];
+                els[j]=t;
+            }
+        }
+    }
+}
+function compare(x,y,f){
+    if(f==1){//IP
+		c = x.replace(/(^|\D)(\d)(?=(\D|$))/g,"$1"+"00$2").replace(/(^|\D)(\d\d)(?=(\D|$))/g,"$1"+"0$2");
+		d = y.replace(/(^|\D)(\d)(?=(\D|$))/g,"$1"+"00$2").replace(/(^|\D)(\d\d)(?=(\D|$))/g,"$1"+"0$2");
+		return (c>d?1:(c<d?-1:0));
+    }else if(f==2){//domain
+		return (x>y?1:(x<y?-1:0));
+    }else{//error
+		return "error";
+    }
+}
+function swap(a,b){
+    a.swapNode(b);
+}
+function funcond(a,b,f){
+    return compare(a.getElementsByTagName("input")[f].value,b.getElementsByTagName("input")[f].value,f);
+}
+
+function free(){
+
+}
+
+window.onload=init;
+window.onbeforeunload = free;
+window.onhelp = function help(){
+    if(ns.divHelp.style.display == "block"){
+        ns.divHelp.style.display = "none";
+        ns.divMain.style.display = "block";
+    }
+    else{
+        ns.divHelp.style.display = "block";
+        ns.divMain.style.display = "none";
+    }
+}
+//未完成功能:
+// 实现升序降序交替排序
+// 手动编辑的textarea 加上行号
+// 操作成功失败提示
+// 清缓存功能扩展: 支持删除其它后缀名的缓存
+// 备份功能
+// 释放内存
+//-->
+</script>
+<body>
+<div id="divMain">
+    <div id="divHead"><span class="sp1">#</span><span id="spIP" title="按IP排序" class="sp2">IP</span><span id="spDomain" title="按域名排序" class="sp3">domain</span><span class="sp4">comment</span></div>
+    <div id="divContent"><textarea id="taContent"></textarea></div>
+</div>
+<hr class="split">
+<div id="divBottom">
+    <span class="left">
+        <span title="将域名和注释连接成完整地址"><input type="checkbox" id="chkComment" checked="true" hidefocus="true">连接域名注释</span>
+    </span>
+    <span class="right">
+    <button hidefocus="true" id="btnSave" title="保存Hosts文件" style="display:none">Save</button>
+    <button hidefocus="true" id="btnShowView" title="查看Hosts文件">View</button>
+    <button hidefocus="true" id="btnClose" title="关闭窗口">Close</button>
+    <a href="mailto:meixuexiang@qq.com" title="Report BUG" title="报告bug">Bug</a></span>
+</div>
+<input type="file" id="fPath">
+<a href="#" onclick="help()" id="lnkHelp">帮助</a>
+<div id="divHelp">
+<pre>
+作 者 : 梅雪香
+版 本 : 1.0
+日 期 : 2007-9-18
+Email : <a href="mailto:meixuexiang@qq.com" title="Report BUG" title="报告bug">meixuexiang@qq.com</a>
+<hr>
+<p align="center" style="color:red">按下 <b>F1</b> 可以关闭/打开该帮助文档</p>
+<b>软件功能:</b>
+    1.修改本机host文件.
+    2.删除本机浏览器的指定类型缓存文件(目前只删除.js文件).
+    3.打开域名页面.
+<b>谁可以使用该软件:</b>
+    如果你需要经常的修改host文件,删除某些缓存文件,浏览各种环境下的同一域名地址,那么本软件可以帮到您.
+<b>如何配置该软件:</b>
+    本程序无法自动搜索您本机的host文件地址和缓存文件夹,需要您手动配置.
+    <b>修改host文件路径:</b>
+        用文本编辑器(如:记事本,editplus,ultraedit等)打开本程序hosteditor.hta,找到
+        gvar.hostpath = "c:\\windows\\system32\\drivers\\etc\\hosts";
+        如上语句,将您本机的host文件地址替换到双引号中,注意使用"\\"来分隔各文件夹名.
+<b>如何使用该软件:</b>
+    如果你已经正确配置了该软件所需要的两个地址,那么你可以开始使用本软件了.
+    软件打开的界面会显示出host文件中生效的和被注释掉的所有host规则.在本界面进行的操作不需要手动保存,程序会自动保存.
+    <b>使某条规则生效:</b>
+        取消该条规则前边复选框的选中状态.
+    <b>修改IP地址,域名:</b>
+        在对应的文本框中进行修改.
+    <b>添加或修改注释:</b>
+        在注释文本框中添加内容,不需要加#号.在host文件中,该注释会显示在本条规则同一行的后部.
+    <b>添加一条新规则:</b>
+        本软件并没有添加新规则的按钮,您可以通过点击已有规则后边的 "C" 链接来复制一条当前规则,
+        并在此基础上修改来达到添加的目的.
+        当host文件中没有任何规则的时候,需要手动在此文件添加至少一条规则,然后才能使用复制功能.
+        您可以用其它编辑器添加一条规则,也可以用本软件的手动编辑功能来添加一条规则,添加方法见后面介绍.
+    <b>删除一条规则:</b>
+        点击规则后边的 "X"链接,并选择弹出框中的确定,可以删除当前规则.
+    <b>打开域名对应的地址:</b>
+        点击规则后边的 "O"链接,可以打开当前域名对应的http协议地址.
+        如果选中了"连接域名注释"复选框,则会把注释的内容当做路径添加到URL后边.
+        如果选中了"自动清除缓存"复选框,程序会自动清除浏览器缓存中的指定后缀名的文件(暂时只删除.js文件).
+    <b>手工编辑host文件:</b>
+        点击页面右下方的View按钮,程序会显示出host文件当前的内容,你可以手动编辑此内容,并通过点击Save按钮保存您的修改,
+        或者点击Edit按钮回到编辑页面并放弃修改.
+    <b>关闭窗口:</b>
+        页面右下方的close按钮可以用来关闭窗口.也可以点击右上角的X(关闭)按钮,或者在任务栏用右键关闭,或者按Alt+F4键.
+    <b>辅助功能:</b>
+        默认情况下,编辑页面不对规则进行任何排序,您可以通过点击页面上方的文字"IP"将规则按IP由小到大的顺序排列.
+        或者点击domain将规则按域名由小到大的顺序排列.
+</pre>
+</div>
+</body>
+</html>
