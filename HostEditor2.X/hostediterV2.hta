@@ -1,0 +1,571 @@
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+<title>Hosts Editor - 梅雪香 V2.0</title>
+<hta:application ID="oHTA" applicationame="myApp" border="thin" scroll="no" singleinstance="yes" maximizeButton="no" 
+><!-- ICON="http://meixx.go1.icpcn.com/01.ico"  -->
+<style type="text/css">
+<!--
+body,div,table,tr,td,th{margin:0px;padding:0px;}
+body{overflow:hidden;background-color:#B3C1D2;font-size:12px;}
+button{margin:0px 5px;border:1px solid #9EADBF; background-color:#B3C1D2;font-size:12px; width:60px; height:26px;background-color:#AABCCE; color: #3E3E3E}
+
+#divHead{margin-top:2px;}
+#divHead th{font-size:12px;}
+.tdSharp{width:22px;}
+.tdIp{width:100px;}
+.tdDomain{width:150px;}
+.tdComm{width:420px;}
+.tdHelp{width:60px;text-align:center;}
+
+
+#divRules{height:540px;overflow:auto;}
+#divRules table{table-layout:fixed;}
+#divRules tr{height:22px;}
+
+#divRules input{width:100%;height:100%;border:1px solid #9EADBF;margin-left:2px;margin-right:2px;background-color:#D6E1EE;color:#2A333A;}
+#divRules a{}
+#divRules a:link{font-weight : bold ;text-decoration : none ;color : #c00 ;}
+#divRules a:visited {font-weight : bold ;text-decoration : none ;color : #c30 ;}
+#divRules a:hover {font-weight : bold ;text-decoration : underline ;color : #f60 ;}
+#divRules a:active {font-weight : bold ;text-decoration : none ;color : #F90 ;} 
+.split{line-height:1px;height:1px;margin:0 30px 0 3px;border:1px inset #9EADBF; }
+#divContent{position:absolute; width:100%; height:548px; top:0px; left:0px;z-index:999;}
+#taContent{width:100%;height:558px;overflow:auto;padding-left:20px;}
+#divToolbar{text-align:right;padding-right:10px;}
+#divMsg{position:absolute;text-align:left;bottom:0px;left:10px;height:30px;}
+.red{color:red;}
+.blue{color:blue;}
+.slctrow{background-color:#D9DEE6 }
+.disnon{display:none}
+#divHelp{width:100%;height:100%;position:absolute;top:0px;left:0px;margin:0px;padding:5px;background-color:#FFFFFF;overflow:auto;z-index:9999;}
+-->
+</style>
+<script type="text/javascript"><!--
+String.prototype.trim=function(){  return this.replace(/(^\s+)|(\s+$)/g,""); }
+function $(id){ return document.getElementById(id);}
+String.prototype.frmWithSpace=function(n){ return (this+"                                        ").substring(0,n); }
+Array.prototype.foreach=function(f){  for(var i=0,l=this.length;i<l;i++) f(this,i); }
+
+//初始化全局变量
+var fso = new ActiveXObject("Scripting.FileSystemObject");
+var host = {};
+var maxDomainLen = 0;
+var hostpath = "c:\\windows\\system32\\drivers\\etc\\hosts";
+var winsize = {winwidth:810,winheight:634,scrnwidth:screen.availWidth,scrnheight:screen.availHeight}
+
+//设置全局变量hostpath为hosts文件的路径
+function getHostPath(){
+    if (!fso.FileExists(hostpath)){
+        var Sh = new ActiveXObject("WScript.Shell");
+        key = "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\";
+        hostpath = Sh.RegRead(key+"SystemRoot") + "\\system32\\drivers\\etc\\hosts";
+        if(!fso.FileExists(hostpath)){
+            try{
+                hostpath = Sh.RegRead(key+"HostPath");
+            }catch(e){
+                while(!fso.FileExists(hostpath)){
+                    hostpath = prompt("本程序无法自动找到您的host文件!\n或者您输入的路径不正确!\n请手动设置您的host文件路径:","在这里输入您的host文件的绝对路径");
+                }
+                Sh.RegWrite(key+"HostPath",hostpath,"REG_SZ");
+                msg("成功将hosts文件路径写入注册表");
+            }
+        }
+    }
+}
+//获取原始的Hosts文件内容
+function getText(){
+    getHostPath();
+    var file = fso.GetFile(hostpath);
+    var ts = fso.OpenTextFile(hostpath, 1);
+    var text = file.Size>0?ts.ReadAll():"";
+    ts.close();
+    return text;
+}
+//获取处理过的Hosts文件内容
+function getHostText(){
+    return getText().replace(/\r(\n)/g,"$1").replace(/\r/g,"\n").replace(/(\n)\n+/g,"$1").replace(/\s*(\n)\s*/g,"$1");
+}
+//保存文本到Hosts文件或者备份文件
+function setHostText(text,isBackup){
+    var path = hostpath;
+    try{
+        if(isBackup){
+            path = path.replace(/[^\\]*$/,"")+"hosts"+(new Date()).valueOf();
+            fso.CreateTextFile(path);
+        }
+        var ts = fso.OpenTextFile(path, 2);
+        ts.write( text );
+        ts.close();
+        return true;
+    }catch(e){
+        msg("保存文件\n" + path + "\n失败!请检查文件是否为只读属性");
+        return false;
+    }
+}
+//判断Hosts文件是否是良好格式的
+function isWellFormated(text){
+    return /^\s*#WELLFORMATED/.test(text);
+}
+//对未格式化的内容进行格式化分组操作
+function fmtHostText(text){
+    function mkHostObj(ar,i){
+        var el = ar[i];
+        if(isValidRule(el)){
+            var o = {"sharp":RegExp.$1=="#"?true:false,"ip":RegExp.$2,"domain":RegExp.$3,"comm":RegExp.$4.replace(/^[\s#]+/,"")};
+            maxDomainLen = o.domain.length > maxDomainLen ? o.domain.length : maxDomainLen;
+            if(host[o.domain]) host[o.domain].push(o);
+            else host[o.domain] = [o];
+        }
+    }
+    text.split(/\n/).foreach(mkHostObj);
+    var d = (new Date()).valueOf();
+    var nGroup = 1;
+    for(var p in host){
+        if(/^#GROUP/.test(p)) continue;
+        var groupid = "#GROUP_"+nGroup+"#";
+        host[groupid] = host[p].slice();
+        host[groupid].lastModified = d;
+        host[p] = null;
+        delete host[p];
+        nGroup++;
+    }
+    save();
+}
+//判断是否是合法的host规则文本
+function isValidRule(text){
+    return /^(#?)\s*(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\s+(\S+)\s*(#(.*))?$/.test(text);
+}
+//根据格式化好的host内容初始化host对象{#GROUP_i#:[{sharp:true|false,ip:"192.168.0.1",domain:"free.qq.com",comm:"this is comment"}]}
+function getHostFromText(text){
+    var arGroup = getHostText().match(/(#GROUP_(\d+)#)\s*([\s\S]*?)\s*#GROUP_END_\2#/g)||[];
+    for(var i=0,l=arGroup.length;i<l;i++){
+        var arRule = arGroup[i].split("\n");
+        var ar = host[arRule.shift().trim()] = [];
+        arRule.pop();
+        for(var j=0,k=arRule.length;j<k;j++){
+            if(isValidRule(arRule[j].trim())){
+                ar.push({sharp:(RegExp.$1=="#"?true:false),ip:RegExp.$2,domain:RegExp.$3,comm:RegExp.$4.replace(/^[\s#]+/,"")});
+                ar.groupdomain = RegExp.$3;
+            }else{
+                if(confirm(arRule[j].trim() + "\n分组信息不正常,是否需要程序重新分组?或者手动处理.\n重新分组可能会丢失一些注释信息,但可以在备份文件中找到!")){
+                    setHostText(getText().replace(/#WELLFORMATED/g,""));
+                    window.location.reload();
+                    return false;
+                }else{
+                    msg("您选择了手动修改Host文件");
+                    return false;
+                }
+            }
+        }
+    }
+    return true;
+}
+//根据host对象初始化表格
+function initTable(){
+    if(!getHostFromText(getHostText())){ $("btnShowView").click(); return false; }
+    var ar=[];
+    for(var p in host)
+        ar.push(mkTableByGroup(p));
+    $("divRules").innerHTML = ar.join('<hr class="split">');
+}
+//生成表格的HTML代码
+function mkTableByGroup(p){
+    var ar = host[p];
+    var strHtml = "<table cellpadding='0' cellspacing='0' grouptag='"+p+"'><colgroup><col class='tdSharp'></col><col class='tdIp'></col><col class='tdDomain'></col><col class='tdComm'></col><col class='tdHelp'></col></colgroup>";
+    for(var i=0,l=ar.length;i<l;i++)
+            strHtml += mkRowByRule(p,i);
+    strHtml += "</table>";
+    return strHtml;
+}
+//生成表格行的HTML代码
+function mkRowByRule(p,idx){
+    var o = host[p][idx];
+    maxDomainLen = o.domain.length > maxDomainLen ? o.domain.length : maxDomainLen;
+    var strHtml = '<tr onmouseover="this.className=\'slctrow\'" onmouseout="this.className=\'\'" grouptag="'+p
+            +'"><td><input onclick="setRuleIsValid(event)" type="checkbox" '
+			+(o.sharp?"":"checked")+'></td><td><input value="'+o.ip+'" onpropertychange="ruleChanged(event,\'ip\')"></td><td><input value="'
+			+o.domain+'" onpropertychange="ruleChanged(event,\'domain\')"></td><td><input value="'
+			+o.comm+'" onpropertychange="ruleChanged(event,\'comm\')"></td><td><a href="#" onclick="return delRule(event)" title="删除当前行规则">&nbsp;X&nbsp;</a><a href="#" onclick="return copyRule(event)" title="将当前行规则复制到剪贴板">&nbsp;C&nbsp;</a></td></tr>';
+    return strHtml;
+}
+//处理添加操作
+function addRule(){
+    var clipText = window.clipboardData.getData("text");
+    var rule = isValidRule(clipText)?clipText:"[#] ip地址 域名 [#注释]",warning="请输入要添加的host规则字符串:";
+	do{
+		var rule = prompt(warning,rule);
+		if(rule == null) return;
+        warning="您输入的host规则不正确!\n请输入要添加的host规则字符串:"
+        rule.trim();
+	}while(!isValidRule(rule));
+    var obj = {sharp:true,ip:RegExp.$2,domain:RegExp.$3,comm:RegExp.$4.replace(/^[\s#]+/,"")};
+	var targrouptag = getGroupTagByDomain(obj.domain);
+	if(host[targrouptag]){
+		host[targrouptag].push(obj);
+		var tarTb = getTbRefByGroupTag(targrouptag);
+		var newrow = tarTb.insertRow();
+        newrow.onmouseover = function (){ this.className='slctrow'};
+        newrow.onmouseout = function (){ this.className=''};
+		newrow.setAttribute("groupTag",targrouptag);
+        var ar = ['<input onclick="setRuleIsValid(event)" type="checkbox">',
+            '<input value="'+obj.ip+'" onpropertychange="ruleChanged(event,\'ip\')">',
+            '<input value="'+obj.domain+'" onpropertychange="ruleChanged(event,\'domain\')">',
+            '<input value="'+obj.comm+'" onpropertychange="ruleChanged(event,\'comm\')">',
+            '<a href="#" onclick="return delRule(event)" title="删除当前行规则">&nbsp;X&nbsp;</a><a href="#" onclick="return copyRule(event)" title="将当前行规则复制到剪贴板">&nbsp;C&nbsp;</a>'
+        ];
+		for(var i=0;i<5;i++){
+			var newcell = newrow.insertCell();
+            newcell.innerHTML = ar[i];
+        }
+        try{ newrow.getElementsByTagName("input")[1].focus(); }catch(e){msg("Warning : "+e.message);}
+	}else{
+		var id = getNewGroupId();
+		targrouptag = "#GROUP_"+id+"#";
+		host[targrouptag] = [];
+		host[targrouptag].push(obj);
+		$("divRules").innerHTML += '<hr class="split">' + mkTableByGroup(targrouptag);
+        try{ 
+            setTimeout(function(){var tbs = $("divRules").getElementsByTagName("table"); tbs[tbs.length-1].rows[0].getElementsByTagName("input")[1].focus();},0);
+        }catch(e){msg("Warning : "+e.message);}
+	}
+    save();
+    msg("规则["+rule+"]添加成功")
+}
+//将规则复制到剪贴板
+function copyRule(evt){
+	var src = evt.srcElement;
+    var curRow = src.parentNode.parentNode;
+	var idx = curRow.rowIndex;
+    var tb = curRow.parentNode.parentNode;
+    var grouptag = curRow.getAttribute("grouptag");
+	var o = host[grouptag][idx];
+	var text = "#"+o.ip+" "+o.domain+(o.comm==""?"":(" #"+o.comm));
+	var bResult = window.clipboardData.setData("Text",text);
+	if(!bResult) msg("拷贝到剪贴板失败!");
+    msg("数据:["+text+"]已经放到剪贴板上");
+}
+//删除一条规则
+function delRule(evt){
+	var src = evt.srcElement;
+    var curRow = src.parentNode.parentNode;
+	var idx = curRow.rowIndex;
+    var tb = curRow.parentNode.parentNode;
+    var grouptag = curRow.getAttribute("grouptag");
+	var o = host[grouptag][idx];
+	if(!confirm("当前配置为:\n"+(o.sharp?"#":"")+o.ip+" "+o.domain+(o.comm==""?"":(" #"+o.comm))+"\n确认要删除当前记录吗?")) return false;
+	host[grouptag].splice(idx,1);
+	if(tb.rows.length==1){
+		host[grouptag] = null;
+		delete host[grouptag];
+		try{
+            var hr = tb.previousSibling || tb.nextSibling;
+            if(hr.nodeName.toLowerCase()=="hr")
+			    hr.parentNode.removeChild(hr);
+		}catch(e){}
+		tb.parentNode.removeChild(tb);
+	}else
+		tb.deleteRow(idx);
+    save();
+    msg("规则删除成功")
+}
+//处理ip,domain,comm改变的事件
+function ruleChanged(evt,type){
+	if(evt.propertyName!="value") return;
+	var src = evt.srcElement;
+	if(window.chgTimer) clearTimeout(window.chgTimer);
+	window.chgTimer = setTimeout(function(){setRuleContent(src,type)},600);
+}
+//处理ip,domain,comm改变的事件,具体处理程序
+function setRuleContent(src,type){
+    var curRow = src.parentNode.parentNode;
+	var txts = curRow.getElementsByTagName("input");
+	var obj = {ip:txts[1].value.trim(),domain:txts[2].value.trim(),comm:txts[3].value.trim()};
+	if(!/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(obj.ip) || obj.domain == "") return;
+    var tb = curRow.parentNode.parentNode;
+    var grouptag = curRow.getAttribute("grouptag");
+	var idx = curRow.rowIndex;
+    host[grouptag][idx].ip = obj.ip;
+    host[grouptag][idx].domain = obj.domain;
+    host[grouptag][idx].comm = obj.comm;
+	if(type=="domain"){
+		var targrouptag = getGroupTagByDomain(obj.domain);
+		if(host[targrouptag]){
+            var o = host[grouptag].splice(idx,1)[0];
+            o.sharp = true;
+			host[targrouptag].push(o);
+            curRow.getElementsByTagName("input")[0].checked = false;
+			var tarTb = getTbRefByGroupTag(targrouptag);
+			var newrow = tarTb.insertRow();
+			newrow.swapNode(curRow);
+			curRow.setAttribute("grouptag",targrouptag);
+			tb.deleteRow(idx);
+			if(tb.rows.length==0){
+				host[grouptag] = null;
+				delete host[grouptag];
+				tb.parentNode.removeChild(tb);
+			}
+            try{ curRow.getElementsByTagName("input")[1].focus(); }catch(e){msg("Warning : "+e.message);}
+		}else{
+			if(tb.rows.length==1)
+				host[grouptag].groupdomain = obj.domain;
+			else{
+				var id = getNewGroupId();
+				targrouptag = "#GROUP_"+id+"#";
+				host[targrouptag] = [];
+				var o = host[grouptag].splice(idx,1)[0];
+				host[targrouptag].push(o);
+				tb.deleteRow(idx);
+				$("divRules").innerHTML += '<hr class="split">' + mkTableByGroup(targrouptag);
+                try{ 
+                    setTimeout(function(){
+                        var tbs = $("divRules").getElementsByTagName("table"); 
+                        tbs[tbs.length-1].rows[0].getElementsByTagName("input")[1].focus();}
+                    ,0);
+                }catch(e){msg("Warning : "+e.message);}
+			}
+		}
+	}
+    save();
+    msg("规则修改成功")
+}
+//生成一个新组的id
+function getNewGroupId(){
+	var newid = 0;
+	for(var p in host){
+		var id = parseInt(p.replace(/\D/g,""),10);
+		if(id > newid);
+			newid = id;
+	}
+	return newid + 1;
+}
+//根据分组标签得到对应表格的引用
+function getTbRefByGroupTag(gt){
+	var tbs = divRules.getElementsByTagName("table");
+    for(var i=0,l=tbs.length;i<l;i++){
+		if(tbs[i].getAttribute("grouptag")==gt)
+			return tbs[i];
+	}
+	return null;
+}
+//根据域名得到所属分组的标签
+function getGroupTagByDomain(domain){
+	for(var p in host){
+		if(domain == host[p].groupdomain)
+			return p;
+	}
+	return "";
+}
+//设置某规则的生效/失效状态
+function setRuleIsValid(evt){
+    var src = evt.srcElement;
+    var curRow = src.parentNode.parentNode;
+    var tb = curRow.parentNode.parentNode;
+    var rows = tb.rows;
+    var idx = curRow.rowIndex;
+    var grouptag = tb.getAttribute("grouptag");
+    var ar = host[grouptag];
+    for(var i=0,l=rows.length;i<l;i++){
+        if(rows[i]!=curRow){
+            rows[i].cells[0].getElementsByTagName("input")[0].checked = false;
+            ar[i].sharp = true;
+        }
+    }
+    var obj = ar[idx];
+    obj.sharp = !src.checked;
+    save();
+    msg(obj.ip + " "+obj.domain+" "+ (obj.sharp?"失效":"生效"))
+}
+//从host对象生成文本
+function getTextFromGvarHost(){
+    var d = new Date();
+    var wrText = "#WELLFORMATED\n#LASTMODIFY:"+d.valueOf()+"("+d.toLocaleString()+")\n#NOTICE:本文件内容为<Mxx HostEditor>自动生成,请不要手动修改!否则可能导致程序无法正常运行\n\n";
+	function rep(grouptag){
+		var ar = host[grouptag],strText=grouptag+"\n";
+		for(var i=0,l=ar.length;i<l;i++){
+			var obj = ar[i];
+			strText += (obj.sharp?"#":"")+obj.ip.frmWithSpace(obj.sharp?19:20)+ (obj.comm==""?(obj.domain):(obj.domain.frmWithSpace(maxDomainLen + 3)+"#"+obj.comm)) +"\n";
+		}
+		return strText + grouptag.replace(/(_)(\d+#)/g,"$1END$1$2\n\n");
+	}
+    for(var p in host)
+        wrText += rep(p);
+    return wrText.trim();
+}
+//保存host对象到hosts文件
+function save(){
+	var text = getTextFromGvarHost();
+    setHostText(text);
+}
+//初始化窗口大小和位置
+function initwindow(){
+    window.resizeTo(winsize.winwidth,winsize.winheight);
+    //window.moveTo((gvar.scrnwidth - gvar.winwidth)/2,(gvar.scrnheight - gvar.winheight)/2);  //居中
+    //window.moveTo((gvar.scrnwidth - gvar.winwidth),(gvar.scrnheight - gvar.winheight));  //右下
+    //window.moveTo((gvar.scrnwidth - gvar.winwidth)/2,(gvar.scrnheight - gvar.winheight));  //中下
+    window.moveTo((winsize.scrnwidth - winsize.winwidth)/2,(winsize.scrnheight - winsize.winheight-26));  //中下
+}
+//帮助函数
+function toHelp(){
+    var div = $("divHelp");
+    if(div.className == "disnon")
+        div.className = "";
+    else div.className = "disnon";
+}
+//显示消息函数
+function msg(txt){
+    var d = new Date();
+    var div = $("divMsg");
+    if(div.className != "red")
+        div.className = "red";
+    else
+        div.className = "blue"
+    div.innerHTML = "时间:"+d.toLocaleString()+"<br>"+txt;
+    if(window.msgTimer) clearTimeout(window.msgTimer);
+    window.msgTimer = setTimeout(function(){var d=$("divMsg");d.className="";d.innerHTML = "";},4000);
+}
+//window初始化调用
+function winload(){
+    initwindow();
+    window.onhelp = toHelp;
+    $("btnShowView").onclick = function(){
+        $("btnAdd").className = "disnon";
+        $("btnShowView").className = "disnon";
+        $("btnSave").className = "";
+        $("btnShowEditor").className = "";
+        $("divContent").className = "";
+        $("taContent").value = getText();
+        msg("切换到文件模式");
+    }
+    $("btnShowEditor").onclick = function(){
+        if(window.everSaved){ window.location.reload(); return ;}
+        $("btnAdd").className = "";
+        $("btnShowView").className = "";
+        $("btnSave").className = "disnon";
+        $("btnShowEditor").className = "disnon";
+        $("divContent").className = "disnon";
+        msg("切换到编辑模式");
+    }
+    $("btnSave").onclick = function(){
+        var text = $("taContent").value;
+        var d = new Date();
+        text = text.replace(/(#LASTMODIFY:)\d+\(.*?\)/g,"$1"+d.valueOf()+"("+d.toLocaleString()+")");
+        $("taContent").value = text;
+        setHostText(text);
+        window.everSaved = true;
+        msg("Hosts文件保存成功");
+    }
+    $("btnRefresh").onclick = function(){window.location.reload(); }
+    $("btnClose").onclick = function(){window.opener = null;window.close(); }
+    $("btnAdd").onclick = addRule;
+    var text = getHostText();
+    if(!isWellFormated(text)){
+        if(confirm("如果您是第一次使用本程序,强烈建议您查看本程序的帮助文档!\n这大概需要一到两分钟时间!\n您需要现在就查看帮助文档吗?"))
+            toHelp(true);
+        if(!setHostText(text,true)) return false;
+        fmtHostText(text);
+    }
+    initTable();
+    msg("程序初始化完成")
+}
+window.onload = winload;
+//调试函数
+//inspect(function(__$) { return eval(__$); });
+function inspect(inspector, title) {
+    var expression, result;
+    if ("ignore" in arguments.callee) return;
+    while(true) {
+        var message = "";
+        if (title) message = title + "\n";
+        if (expression) message += "\n" + expression + " ==> " + result + "\n\n";
+        else expression = "";
+        message += "Enter an expression to evaluate:";
+        expression = prompt(message, expression);
+        if (!expression) return;
+        result = inspector(expression);
+    }
+}
+//-->
+</script>
+<body>
+<div id="divHead"><table id="tbHead" cellpadding='0' cellspacing='0'><colgroup><col class='tdSharp'></col><col class='tdIp'></col><col class='tdDomain'></col><col class='tdComm'></col><col class='tdHelp'></col></colgroup><tr><th></th><th>IP地址</th><th>域名</th><th>注释</th><th><a href="#" onclick="toHelp()" hidefocus="true">帮助</a></th></tr></table></div>
+<div id="divRules"></div>
+<hr class="split">
+<div id="divContent" class="disnon"><textarea id="taContent"></textarea></div>
+<div id="divToolbar">
+	<button hidefocus="true" id="btnAdd" title="添加新的Host规则">添加</button>
+    <button hidefocus="true" id="btnShowView" title="查看Hosts文件">查看</button>
+	<button hidefocus="true" id="btnSave" title="保存Hosts文件" class="disnon">保存</button>
+    <button hidefocus="true" id="btnShowEditor" title="编辑Hosts文件" class="disnon">编辑</button>
+    <button hidefocus="true" id="btnRefresh" title="刷新">刷新</button>
+    <button hidefocus="true" id="btnClose" title="关闭窗口">关闭</button>
+    <a href="mailto:meixuexiang@qq.com" title="Report BUG" title="报告bug">Bug</a></span>
+</div>
+<div id="divMsg"></div>
+<div id="divHelp" class="disnon">
+<pre>
+作 者 : 梅雪香
+版 本 : 2.0
+日 期 : 2008-03-30
+Email : <a href="mailto:meixuexiang@qq.com" title="Report BUG" title="报告bug">meixuexiang@qq.com</a>
+<hr>
+<p align="center" style="color:red">按下 <b>F1</b> 可以关闭/打开该帮助文档</p>
+<b>软件功能:</b>
+    1.在windows系统上,编辑本机host文件.
+<b>谁可以使用该软件:</b>
+    如果你需要经常的修改host文件,浏览各种环境下的同一域名地址,那么本软件可以帮到您.
+<b>如何配置该软件:</b>
+    本程序会自动搜索您本机的host文件地址,在程序无法找到Hosts文件时,需要您手动配置.
+    <b>修改host文件路径:</b>
+        如果程序无法找到Hosts文件,将会弹出窗口让您输入您使用本软件的机器的Hosts文件绝对地址,比如:
+        c:\windows\system32\drivers\etc\hosts
+        当您输入正确后,程序会保存该地址到您的注册表,键值为:
+            HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\HostPath
+        当您不需要使用该软件时,可以删除该键值.即使保留也不会对您的系统造成任何影响.
+        同时,本软件保证绝不获取您的任何信息,不修改注册表的任何其它内容,请放心使用.
+<b>如何使用该软件:</b>
+    如果程序能够找到您的Hosts文件地址,那么你可以开始使用本软件了.
+    软件打开的界面会显示出host文件中生效的和被注释掉的所有host规则.在本界面进行的操作不需要手动保存,程序会自动保存.
+    本程序首次运行会对您的Hosts文件进行分组格式化,原有的注释信息将会丢失.
+    本程序在进行分组格式化之前,会自动备份您的Hosts文件,文件名为&lt;Hosts+一串数字&gt;.数字最大的为最新的备份.
+    本程序按照域名对所有的Hosts文件进行分组,并把分组信息保存到Hosts文件中.这不会影响Hosts文件的功能.
+    <b>使某条规则生效/失效:</b>
+        改变该条规则前边复选框的选中状态.选中为生效,反之为不生效.
+        在域名相同的一组中,只能有一个域名为生效状态,程序将自动完成.
+    <b>修改IP地址,域名:</b>
+        在对应的文本框中进行修改.程序将在输入结束0.6秒后进行保存,这几乎不影响您去打开新的浏览器窗口.
+    <b>添加或修改注释:</b>
+        在注释文本框中添加内容,不需要加#号.在host文件中,该注释会显示在本条规则同一行的后部.
+    <b>添加一条新规则:</b>
+        1. 在编辑模式下(默认显示的为编辑模式),点击窗口底部的 <strong>添加</strong> 按钮;
+        2. 在弹出的窗口中输入要添加的Hosts规则,形如:
+                <strong>[#] ip地址 域名 [#注释]</strong>
+            其中方括号内为可选输入的内容,也就是说,您至少要输入IP地址和域名 ;
+        3. 如果您输入的文本不合法,程序会让您重新输入,您可以选择重新输入,或者 <strong>取消</strong> ;
+        4. 添加成功后,如果已有和新规则相同域名的分组,当前规则会添加到已有分组的最后一行,
+           否则,新规则显示在所有规则的最下边;
+        <strong>[小窍门]</strong>
+            在每一行规则的后边都有一个字母 <strong style="color:red">[ C ]</strong> ,点击该链接可以方
+            便的将该行规则保存到windows系统的剪贴板中.
+            您可以将该规则传递给他人.
+            或者直接点击 <strong>添加</strong> 按钮,您会发现,该规则文本自动出现在对话框中,只要进行部分
+            修改再点确定就达到了简单添加操作的目的.
+    <b>删除一条规则:</b>
+        点击规则后边的 <strong style="color:red">[ X ]</strong> 链接,程序会提示您想要删除的规则的内容.此时选择弹出框中的确定,可以删除当前规则.
+    <b>手工编辑host文件:</b>
+        点击页面右下方的 <strong>查看</strong> 按钮,程序会显示出host文件当前的内容,你可以手动编辑此内容,
+        并通过点击 <strong>保存</strong> 按钮保存您的修改,或者点击Edit按钮回到编辑页面并放弃修改.
+        <strong>[友情提醒]</strong>
+            经过本程序处理的Hosts文件包含有大量功能性的注释信息,不适宜手工处理.
+            如果需要大量添加新的Hosts规则,步骤如下:
+                1. 删除Hosts文件第一行的 <label style="color:blue">#WELLFORMATED</label>.
+                2. 在任意位置添加Hosts规则并保存所作的修改.
+                3. 把需要经常编辑的规则放在前边,可以使您在使用本程序时不用常向下滚动.
+    <b>刷新窗口:</b>
+        页面右下方的 <strong>刷新</strong> 按钮可以用来刷新窗口.也可以按 <strong>F5</strong> 键.
+    <b>关闭窗口:</b>
+        页面右下方的close按钮可以用来关闭窗口.也可以点击右上角的X(关闭)按钮,或者在任务栏用右键关闭,或者按Alt+F4键.
+</pre>
+</div>
+</body>
+</html>
