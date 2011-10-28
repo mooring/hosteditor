@@ -1,4 +1,5 @@
 importPackage(Packages.java.io);
+
 function parseParam(args){
 	var oParam = {}, r = /^-(\w+)=(.*)$/;
 	for (var m, i = 0, l = args.length; i < l; i++) {
@@ -11,9 +12,7 @@ function parseParam(args){
 
 function forEach(array, fun){
 	for (var i = 0, len = array.length; i < len; i++) {
-		if (false === fun.call(array, array[i], i, array)) {
-			return array;
-		}
+		if (false === fun.call(array, array[i], i, array)) { return array; }
 	}
 	return array;
 }
@@ -32,19 +31,33 @@ function main(args){
 	} catch (ex) {
 		return;
 	}
+	var encoding = Config.encoding || 'utf-8', oRes = {};
 	
-	var encoding = Config.encoding || 'utf-8';
-	
-	forEach(Config.projects, function(proj){
-		var arCode = [];
-		proj.needClosure && arCode.push('(function(window){');
-		forEach(proj.sources, function(path){
-			arCode.push(readFile(path, encoding));
-		});
-		proj.needClosure && arCode.push('})(window);');
-		writeFile(proj.destPath, arCode.join('\r\n'), encoding);
-		print('Build project : "' + proj.name + '" success.');
+	var html = readFile(Config.base, encoding).replace(/>\s*</g, '><').replace(/\{([\d\w\.]+)\}/g, function(_, key){
+		return Config[key];
 	});
+	
+	print('readFile : "' + Config.base + '" success.');
+	
+	forEach(Config.sources, function(path){
+		var fileName = path.split('/').pop();
+		oRes[fileName] = readFile(path.replace(/\.(js|css)$/, '.$1min'), encoding);
+		print('readFile : "' + path + '" success.');
+	});
+	
+	html = html.replace(/<link.*?href="([^"]+)".*?\/\s*>/g, function(_, key){
+		return '<style type="text/css">' + (oRes[key] || '') + '</style>'
+	}).replace(/<script.*?src="([^"]+)".*?\/script>/g, function(_, key){
+		return '<script>' + (oRes[key] || '') + '</script>';
+	});
+	print('Merge success.');
+	
+	writeFile(Config.destPath.replace(/\{([\d\w\.]+)\}/g, function(_, key){
+		return Config[key];
+	}), html, encoding);
+	
+	print('Save success.');
+	print('Build project : "' + Config.name + ' ' + Config.version + '" success.');
 }
 
 main(arguments);
