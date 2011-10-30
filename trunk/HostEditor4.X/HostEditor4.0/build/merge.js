@@ -37,12 +37,12 @@ function main(args){
 		return Config[key];
 	});
 	
-	print('readFile : "' + Config.base + '" success.');
+	print('ReadFile : "' + Config.base + '" success.');
 	
 	forEach(Config.sources, function(path){
 		var fileName = path.split('/').pop();
 		oRes[fileName] = readFile(path.replace(/\.(js|css)$/, '.$1min'), encoding);
-		print('readFile : "' + path + '" success.');
+		print('ReadFile : "' + path + '" success.');
 	});
 	
 	html = html.replace(/<link.*?href="([^"]+)".*?\/\s*>/g, function(_, key){
