@@ -2,4 +2,4 @@
 		<p>作者：梅雪香(meixx)</p><p>日期：2011-11-11</p>\
 		<p>版本：4.0</p>\
 		<p>网址：<a href="http://www.mjser.com/">官方网站</a></p>\
-		<p>赞助：支付宝：wy_hd@163.com</p><p>　　　财付通：4948750</p></div>', {			title: '关于HostEditor'		});	},	more: function(){	}};function init(){	//$(document).bind('contextmenu', function(evt){evt.preventDefault();})	if (!File.isHostsThere()) {		return $.alert('不好意思, 程序找不到hosts文件');	}	var text = $.trim(File.readHost());	Json = Host.readConfig(text);	//Json.firstRun && File.backup();	Wnd.setRect(Json.size.width, Json.size.height);	Editor.initBehavior(Json);	Editor.renderDom(Json);}$(init);
+		<p>赞助：支付宝：wy_hd@163.com</p><p>　　　财付通：4948750</p></div>', {			title: '关于HostEditor'		});	},	more: function(){	}};function init(){	//$(document).bind('contextmenu', function(evt){evt.preventDefault();})	if (!File.isHostsThere()) {		return $.alert('不好意思, 程序找不到hosts文件');	}	var text = $.trim(File.readHost());	Json = Host.readConfig(text);	//Json.firstRun && File.backup();	Wnd.setRect(Json.size.width, Json.size.height);		return;	Editor.initBehavior(Json);	Editor.renderDom(Json);}$(init);
