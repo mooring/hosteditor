@@ -2,20 +2,19 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-cn" lang="zh-cn">
 <head>
 <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
-<title>HostEditor V3.2 - 梅雪香</title>
+<title>HostEditor V3.3 - 梅雪香</title>
 <hta:application id="appMxxHostEditor" applicationname="appMxxHostEditor" singleinstance="yes" border="thin" scroll="no" maximizeButton="no">
 <style type="text/css">
 <!--
 html * {margin:0px;padding:0px;}
-body{padding:0px; font-size:12px;background-color: #efefef;width:100%;height:100%;cursor:default; color:#141414; 
-}
+body{padding:0px; font-size:12px;background-color: #efefef;width:100%;height:100%;cursor:default; color:#141414;}
 button{font-size:13px;height:30px;padding:0px 2px;}
 #divHeader {border-width:2px 0px;border-style: solid;border-top-color:buttonface;border-bottom-color:buttonshadow;
 background-color:buttonface;margin:0px ;height:24px;}
 #divHeader select{width:145px;}
 #divHeader .divCase{float:right;white-space:nowrap;}
 #divHeader .divCase button{border:1px solid gray;font-weight:bold;font-size:16px;width:20px;height:20px;margin:0px 1px 2px 0px;}
-#divHeader .domainfilter{border:1px solid gray;background-color:#efefef;height:15px;font-size:12px;color:gray;padding-top:1px;padding-left:3px;ime-mode:disabled;}
+#divHeader .domainfilter{border:1px solid gray;background-color:#efefef;height:15px;font-size:12px;color:gray;padding-top:2px;padding-left:3px;ime-mode:disabled;}
 #divBody{padding:0 10px; width:780px; height:530px; overflow:auto; }
 #divTextMode{width:800px; height:530px; overflow:hidden;}
 #divTextMode textarea{width:800px;height:530px; overflow:auto; border:0px; background-color: #efefef;}
@@ -29,7 +28,7 @@ background-color:buttonface;margin:0px ;height:24px;}
 
 .domaingroups div{width:144px;float:left;overflow:hidden;height:26px;margin:2px;}
 .domaingroups div label{padding:1px 2px; zoom:1;}
-.domaingroups div a{width:12px; margin:0px 1px; text-align:center; zoom:1;}
+.domaingroups div a{margin:1px 1px; zoom:1;}
 .fieldsetover{}
 .fieldsetover legend{font-weight:bold;color:#BA0113;}
 .fieldsetover legend .act{display:inline}
@@ -48,18 +47,13 @@ background-color:buttonface;margin:0px ;height:24px;}
 .divFloatAdd .text{padding:1 3px;}
 .layout{position:absolute;top:0px;left:0px;background-color: #000000;}
 .effective{font-weight:bold;}
-.learning{zoom:1;width:560px;margin:0px 15px;overflow:hidden;white-space  :nowrap;}
+.learning{zoom:1;width:360px;margin:0px 15px;overflow:hidden;white-space  :nowrap;}
 .learning span{zoom:1;width:400px;}
 .clshelp{position:absolute;top:0px;left:0px; height:100%;background-color:#FFFFCC;margin:0px; padding:0px 10px;display:none;overflow:auto;}
 .hidden{display:none;}
 .center{text-align:center;}
 .title{font-size:16px;font-weight:bold;word-spacing:5px;letter-spacing:2px;}
 .blue{color:blue;}
-.casecontainer{width:400px;height:300px;border:2px solid;border-color:buttonhighlight buttonshadow buttonshadow buttonhighlight;;position:absolute;overflow:hidden;background-color:buttonface;padding:15px 2px;}
-.casecontainer .caselist{overflow:auto;}
-.casecontainer .caselist li{width:80px; height:80px; margin:2px; float:left; border:1px solid #804040 }
-.casecontainer .caselist li textarea{width:76px; height:76px; border:0px;overflow:auto;}
-.casecontainer .footbar{position:absolute; text-align:right; width:400px; height:40px;bottom:0px;}
 -->
 </style>
 <script type="text/javascript">
@@ -394,22 +388,20 @@ function backUpHostFile(){
 <script type="text/javascript">
 <!--
 //初始化窗口大小和位置
-function initwindow(){
-	var winsize = {
-		winwidth: 810,
-		winheight: 634,
-		scrnwidth: screen.availWidth,
-		scrnheight: screen.availHeight
-	};
-	try {
-		window.resizeTo(winsize.winwidth, winsize.winheight);
-		window.moveTo((winsize.scrnwidth - winsize.winwidth) / 2, (winsize.scrnheight - winsize.winheight) / 2);
-	} catch (ex) {
+var Wnd = {
+	timer: 0,
+	setRect: function(w, h){
+		var sw = screen.availWidth, sh = screen.availHeight, bdy = document.body;
+		try {
+			resizeTo(w, h);
+			resizeTo(w = w + w - bdy.clientWidth, h = h + h - bdy.clientHeight);
+			moveTo(Math.max((sw - w) / 2, 0), (sh - h) / 2);
+		} catch (ex) {
+		}
 	}
-}
+};
 
 function initCase(){
-	return true;
 	var text = getCaseText().trim() || 'LoadCase({})';
 	var dlt = $('#dltCase');
 	var casedata = null;
@@ -522,9 +514,8 @@ function initLearning(){
 	return true;
 }
 
-function filterDomain(evt){
-	evt && evt.keyCode == 27 && (this.value='');
-	var r = new RegExp(this.value.toLowerCase(), 'i');
+function filterDomain(){
+	var r = new RegExp($(this).val().toLowerCase(), 'i');
 	$('#divBody fieldset').each(function(i, n){
 		$(this)[r.test($('legend span', this).html()) ? 'fadeIn' : 'fadeOut']();
 	});
@@ -534,9 +525,8 @@ function initDomainFilter(){
 	return $('#txtDomainFilter')
 		.bind('drop', filterDomain)
 		.bind('paste', filterDomain)
-		.bind('dblclick', function(evt){this.value = ''; filterDomain.call(this,evt); })
-		.keyup(filterDomain)
-		.focus(function(){
+		.bind('dblclick', function(){this.value = ''; filterDomain(); })
+		.keyup(filterDomain).focus(function(){
 			if (this.value == '按域名过滤') this.value = '';
 		}).blur(function(){
 			if (this.value.empty()) this.value = '按域名过滤';
@@ -544,7 +534,7 @@ function initDomainFilter(){
 }
 
 function initTopBanner(){
-	return initCase() && initLearning() && initDomainFilter();
+	return initCase() /*&& initLearning()*/ && initDomainFilter();
 }
 
 function getObjByRule(rule){
@@ -807,62 +797,18 @@ function initGlobleVar(){
 	window.mapDomainFieldset = {};
 	return true;
 }
-function LoadCase(json){
-	LoadCase.data = json;
-}
-function saveCaseList(json){
-	var arCode = [];
-	$.each(json,function (key, arRules){
-		arCode.push('"' + key + '":["' + arRules.join('","') + '"]');
-	});
-	var code = 'LoadCase({' + arCode.join(',') + '})';
-	if (!setCaseText(code)) {
-		msg('保存方案失败!请检查配置文件:' + casename + '是否为只读属性');
-		return false;
-	};
-	return true;
-}
-function initBottomBanner(){
-	var fns = [
-	function (){
-		$.getScript(casepath,function(){
-			var arHtml = ['<div class="casecontainer"><ul id="ul_case_list" class="caselist">'];
-			$.each(LoadCase.data, function(name,rules){
-				arHtml.push('<li>'+name+'</li>');
-			});
-			arHtml.push('</ul><div class="footbar"><button>确定</button><button>取消</button></div></div>');
-			$(arHtml.join('')).modal(function(){
-				var name = ta.val();
-				if(name.empty() || name.trim() == '请输入方案名称'){
-					alert('请输入方案名称');
-					return ta.focus().select();
-				}
-				if(LoadCase.data[name]){
-					alert('方案名称已经存在，请重新输入');
-					return ta.focus().select();
-				}
-				var chks = $('#divBody :checkbox[checked]'), arRule = [];
-				chks.each(function(i,chk){
-					arRule.push( getRuleFromCheckbox($(chk)) );
-				});
-				LoadCase.data[name] = arRule;
-				saveCaseList(LoadCase.data);
-				ta.parent().append(document.createTextNode(name));
-				ta.remove();
-			});
-			var ta = $('<li><textarea>请输入方案名称</textarea></li>').prependTo('#ul_case_list').find('textarea').focus().select();
-		});
 
-	},
-	function(){
-		$('#divFooter button').slice(1, 7).toggleClass('hidden');
+function initBottomBanner(){
+	var fns = [function(){
+		$('#divFooter button').slice(0, 6).toggleClass('hidden');
 		$('#divTextMode,#divBody').toggleClass('hidden');
 		$('#taHostText').val(getHostText().trim());
 	}, function(){
 		if (isTextModeSaved) {
-			return location.reload();
+			location.reload();
+			return;
 		}
-		$('#divFooter button').slice(1, 7).toggleClass('hidden');
+		$('#divFooter button').slice(0, 6).toggleClass('hidden');
 		$('#divTextMode,#divBody').toggleClass('hidden');
 	}, function(){
 		var ar = (window.clipboardData.getData("text") || '').split('\n'), arRules = [];
@@ -970,7 +916,8 @@ function openHelp(){
 
 $(function(){
 	if (!initGlobleVar()) return false;
-	initwindow();
+	//initwindow();
+	Wnd.setRect(800, 627);
 	if (!initHostToDom()) {
 		return false;
 	}
@@ -991,14 +938,13 @@ $(function(){
 </script>
 <body>
 <div id="divHeader">
-	<div id="divCase" class="divCase hidden"><select id="dltCase"><option>选择已保存的方案</option></select><button title="保存当前配置为方案">+</button><button title="删除当前选择的配置">-</button></div>
+	<div id="divCase" class="divCase"><select id="dltCase"><option>选择已保存的方案</option></select><button title="保存当前配置为方案">+</button><button title="删除当前选择的配置">-</button></div>
 	<label>&nbsp;按域名过滤：<input type="text" id="txtDomainFilter" value="按域名过滤" title="输入对域名的模糊匹配字符串，匹配模式为: %keyword%" class="domainfilter"></label><span id="spLearning" class="learning"></span>
 </div>
 <div id="divBody"></div>
 <div id="divTextMode" class="hidden"><textarea id="taHostText"></textarea></div>
 <div id="divFooter">
 	<span id="spMsg" class="spMsg"></span>
-	<button title="把当前配置保存为方案" class="hidden">保存为方案</button>
 	<button title="切换到文本编辑模式">查看</button>
 	<button title="切换到图形编辑模式" class="hidden">编辑</button>
 	<button title="添加新的HOST规则">添加</button>
