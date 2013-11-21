@@ -7,8 +7,7 @@
 <style type="text/css">
 <!--
 html * {margin:0px;padding:0px;}
-body{padding:0px; font-size:12px;background-color: #efefef;width:100%;height:100%;cursor:default; color:#141414; 
-}
+body{padding:0px; font-size:12px;background-color: #efefef;width:100%;height:100%;cursor:default; color:#141414;}
 button{font-size:13px;height:30px;padding:0px 2px;}
 #divHeader {border-width:2px 0px;border-style: solid;border-top-color:buttonface;border-bottom-color:buttonshadow;
 background-color:buttonface;margin:0px ;height:24px;}
@@ -389,19 +388,18 @@ function backUpHostFile(){
 <script type="text/javascript">
 <!--
 //初始化窗口大小和位置
-function initwindow(){
-	var winsize = {
-		winwidth: 810,
-		winheight: 634,
-		scrnwidth: screen.availWidth,
-		scrnheight: screen.availHeight
-	};
-	try {
-		window.resizeTo(winsize.winwidth, winsize.winheight);
-		window.moveTo((winsize.scrnwidth - winsize.winwidth) / 2, (winsize.scrnheight - winsize.winheight) / 2);
-	} catch (ex) {
+var Wnd = {
+	timer: 0,
+	setRect: function(w, h){
+		var sw = screen.availWidth, sh = screen.availHeight, bdy = document.body;
+		try {
+			resizeTo(w, h);
+			resizeTo(w = w + w - bdy.clientWidth, h = h + h - bdy.clientHeight);
+			moveTo(Math.max((sw - w) / 2, 0), (sh - h) / 2);
+		} catch (ex) {
+		}
 	}
-}
+};
 
 function initCase(){
 	var text = getCaseText().trim() || 'LoadCase({})';
@@ -916,7 +914,8 @@ function openHelp(){
 
 $(function(){
 	if (!initGlobleVar()) return false;
-	initwindow();
+	//initwindow();
+	Wnd.setRect(800, 627);
 	if (!initHostToDom()) {
 		return false;
 	}
