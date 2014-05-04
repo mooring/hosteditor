@@ -1,0 +1,14 @@
+* { margin: 0; padding: 0; }
+html,
+body { width: 100%; height: 100%; overflow: hidden; font-size: 12px; background: #efefef; }
+.hidden { display: none; }
+.ui-state-highlight { height: 35px; line-height: 35px; margin: 2px 6px; background: #ffffd5; }
+.fill-client { width: 100%; height: 100%; }
+.gui { overflow: auto; font-size: 13px; }
+.gui .domaingroups { margin: 2px 6px; background: #efefef; }
+.gui .domaingroups .ipitem { float: left; margin: 3px 4px; width: 110px; height: 18px; line-height: 18px; }
+.gui .domaingroups .ipitem input { vertical-align: middle; margin-right: 3px; }
+.abs { position: absolute; top: 0; left: 0; }
+.overlay { background: #000; opacity: 0.5; filter: alpha(opacity=50); }
+.menu { }
+.contextmenu{ position: absolute; }
